@@ -1,0 +1,110 @@
+type Comment {
+  content: String!
+  createdAt: DateTimeOffset!
+  id: ID!
+  post: Post!
+  postId: ID!
+  user: User!
+  userId: ID!
+}
+
+"The `DateTimeOffset` scalar type represents a date, time and offset from UTC. `DateTimeOffset` expects timestamps to be formatted in accordance with the [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard."
+scalar DateTimeOffset
+
+type Mutation {
+  posts: PostMutation!
+}
+
+"Information about pagination in a connection."
+type PageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+}
+
+type Post {
+  comments: [Comment!]!
+  content: String!
+  createdAt: DateTimeOffset!
+  id: ID!
+  title: String!
+  user: User!
+  userId: ID!
+}
+
+"A connection from an object to a list of objects of type 'Post'."
+type PostConnection {
+  "A list of all of the edges returned in the connection."
+  edges: [PostEdge!]!
+  "A list of all of the objects returned in the connection. This is a convenience field provided for quickly exploring the API; rather than querying for \"{ edges { node } }\" when no edge data is needed, this field can be used instead. Note that when clients like Relay need to fetch the \"cursor\" field on the edge to enable efficient pagination, this shortcut cannot be used, and the full \"{ edges { node } } \" version should be used instead."
+  items: [Post!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  "A count of the total number of objects in this connection, ignoring pagination. This allows a client to fetch the first five objects by passing \"5\" as the argument to `first`, then fetch the total count so it could display \"5 of 83\", for example. In cases where we employ infinite scrolling or don't have an exact count of entries, this field will return `null`."
+  totalCount: Int!
+}
+
+"An edge in a connection from an object to another object of type 'Post'."
+type PostEdge {
+  "A cursor for use in pagination"
+  cursor: String!
+  "The item at the end of the edge"
+  node: Post!
+}
+
+type PostMutation {
+  add(content: String!, title: String!, userId: ID!): Post!
+  delete(id: ID!): Boolean!
+  update(content: String!, id: ID!, title: String!): Post!
+}
+
+type Query {
+  comment(id: ID!): Comment!
+  me: User!
+  post(id: ID!): Post!
+  posts(after: ID, before: ID, first: Int, last: Int): PostConnection!
+  test: String
+  user(id: ID!): User!
+  users(after: ID, before: ID, first: Int, last: Int): UserConnection!
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+  SYS_ADMIN
+}
+
+type User {
+  email: String
+  firstName: String
+  id: ID!
+  lastName: String
+  name: String
+  roles: [Role!]!
+}
+
+"A connection from an object to a list of objects of type 'User'."
+type UserConnection {
+  "A list of all of the edges returned in the connection."
+  edges: [UserEdge!]!
+  "A list of all of the objects returned in the connection. This is a convenience field provided for quickly exploring the API; rather than querying for \"{ edges { node } }\" when no edge data is needed, this field can be used instead. Note that when clients like Relay need to fetch the \"cursor\" field on the edge to enable efficient pagination, this shortcut cannot be used, and the full \"{ edges { node } } \" version should be used instead."
+  items: [User!]!
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  "A count of the total number of objects in this connection, ignoring pagination. This allows a client to fetch the first five objects by passing \"5\" as the argument to `first`, then fetch the total count so it could display \"5 of 83\", for example. In cases where we employ infinite scrolling or don't have an exact count of entries, this field will return `null`."
+  totalCount: Int!
+}
+
+"An edge in a connection from an object to another object of type 'User'."
+type UserEdge {
+  "A cursor for use in pagination"
+  cursor: String!
+  "The item at the end of the edge"
+  node: User!
+}
+

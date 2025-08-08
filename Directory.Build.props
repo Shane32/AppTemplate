@@ -1,0 +1,21 @@
+<Project>
+  
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AnalysisLevel>10.0-recommended</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants Condition="'$(GITHUB_ACTIONS)' == 'true'">$(DefineConstants);CI</DefineConstants>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Using Include="AppDb" />
+    <Using Include="AppDb.Models" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="System.Globalization" />
+  </ItemGroup>
+  
+</Project>

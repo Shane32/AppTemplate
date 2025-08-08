@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "rooveterinaryinc.roo-cline",
+    "mia-hall.vscode-git-branch-sidebar",
+    "davidanson.vscode-markdownlint",
+    "github.vscode-pull-request-github",
+    "GraphQL.vscode-graphql-syntax"
+  ]
+}

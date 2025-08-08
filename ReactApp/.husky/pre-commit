@@ -1,0 +1,4 @@
+cd ReactApp
+npm.cmd run pretty-quick
+npm.cmd run lint
+npx.cmd tsc

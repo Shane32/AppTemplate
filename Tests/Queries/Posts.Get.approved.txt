@@ -1,0 +1,41 @@
+{
+  "data": {
+    "posts": {
+      "items": [
+        {
+          "comments": [
+            {
+              "content": "Hello there!",
+              "id": "1",
+              "post": {
+                "id": "1",
+                "title": "Hello"
+              },
+              "postId": "1",
+              "user": {
+                "id": "1",
+                "name": "Alice"
+              },
+              "userId": "1"
+            }
+          ],
+          "content": "Hello, World!",
+          "id": "1",
+          "title": "Hello",
+          "user": {
+            "id": "1",
+            "name": "Alice"
+          },
+          "userId": "1"
+        }
+      ],
+      "pageInfo": {
+        "endCursor": "0",
+        "hasNextPage": false,
+        "hasPreviousPage": false,
+        "startCursor": "0"
+      },
+      "totalCount": 1
+    }
+  }
+}

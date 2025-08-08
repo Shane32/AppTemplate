@@ -1,0 +1,15 @@
+{
+  "data": {
+    "posts": {
+      "add": {
+        "content": "World",
+        "id": "1",
+        "title": "Hello",
+        "user": {
+          "id": "1",
+          "name": "Alice"
+        }
+      }
+    }
+  }
+}

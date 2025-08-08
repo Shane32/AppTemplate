@@ -1,0 +1,30 @@
+name: Upload coverage & Publish to dev site
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upload-coverage:
+    name: Upload coverage
+    uses: Shane32/SharedWorkflows/.github/workflows/build-check.yml@v2
+    with:
+      dotnet_folder: '.'
+
+  publish-dev:
+    name: Publish to dev site
+    uses: Shane32/SharedWorkflows/.github/workflows/publish-app.yml@v2
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      dotnet_folder: AppServer
+      spa_folder: ReactApp
+      spa_deployment_method: azure-webapp
+      environment_name: Development
+      persisted_documents_file: ReactApp/src/gql/persisted-documents.json

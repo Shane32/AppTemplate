@@ -1,0 +1,56 @@
+{
+  "name": "reactapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"graphql-codegen --watch\"",
+    "build": "rimraf -g \"**/*.g.ts\" && graphql-codegen --config codegen-production.ts --verbose && tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "pretty-quick": "pretty-quick --staged --pattern \"ReactApp/**/*.*\"",
+    "prettier:check": "prettier . --check",
+    "prepare": "cd .. && husky ReactApp/.husky",
+    "test": ""
+  },
+  "engines": {
+    "node": "^22.14.0",
+    "npm": "^10.9.2"
+  },
+  "dependencies": {
+    "@shane32/graphql": "^5.0.1",
+    "@shane32/msoauth": "^2.1.0",
+    "bootstrap": "^5.3.3",
+    "graphiql": "^3.7.2",
+    "graphql": "^16.9.0",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.5",
+    "react-bootstrap-icons": "^1.11.4",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "sass": "^1.80.7"
+  },
+  "devDependencies": {
+    "@0no-co/graphqlsp": "^1.12.16",
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/schema-ast": "^4.1.0",
+    "@parcel/watcher": "^2.5.0",
+    "@shane32/graphql-codegen-near-operation-file-plugin": "^1.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "husky": "^9.1.6",
+    "pretty-quick": "^4.0.0",
+    "rimraf": "^4.4.1",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

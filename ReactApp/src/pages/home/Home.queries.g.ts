@@ -1,0 +1,1 @@
+export { TestQuery1Document, TestQuery2Document } from "../../gql/graphql.ts";

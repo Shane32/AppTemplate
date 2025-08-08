@@ -1,0 +1,35 @@
+{
+  "newEntry": {
+    "Comments": null,
+    "Content": "World2",
+    "CreatedAt": "2024-10-25T00:00:00\u002B00:00",
+    "Id": 1,
+    "Title": "Hello2",
+    "User": null,
+    "UserId": 1
+  },
+  "oldEntry": {
+    "Comments": null,
+    "Content": "Hello, World!",
+    "CreatedAt": "2024-10-25T00:00:00\u002B00:00",
+    "Id": 1,
+    "Title": "Hello",
+    "User": null,
+    "UserId": 1
+  },
+  "response": {
+    "data": {
+      "posts": {
+        "update": {
+          "content": "World2",
+          "id": "1",
+          "title": "Hello2",
+          "user": {
+            "id": "1",
+            "name": "Alice"
+          }
+        }
+      }
+    }
+  }
+}
