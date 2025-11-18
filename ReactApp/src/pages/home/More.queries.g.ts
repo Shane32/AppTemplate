@@ -1,1 +1,1 @@
-export { TestQuery3Document, TestQuery4Document } from "../../gql/graphql.ts";
+export { TestQuery3Document, TestQuery4Document } from "../../gql/graphql";

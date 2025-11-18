@@ -1,1 +1,1 @@
-export { MeDocument } from "../gql/graphql.ts";
+export { MeDocument } from "../gql/graphql";

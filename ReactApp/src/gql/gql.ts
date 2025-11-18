@@ -14,7 +14,15 @@ import * as types from './graphql';
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
-const documents = {
+type Documents = {
+    "\n  query Me {\n    me {\n      id\n      name\n      firstName\n      lastName\n      roles\n    }\n  }\n": typeof types.MeDocument,
+    "\n  query TestQuery1 {\n    me {\n      id\n      name\n      email\n    }\n  }\n": typeof types.TestQuery1Document,
+    "\n  query TestQuery2 {\n    comment(id: \"1\") {\n      id\n    }\n  }\n": typeof types.TestQuery2Document,
+    "\n  query TestQuery3 {\n    post(id: \"1\") {\n      ...Fragment1\n    }\n  }\n  fragment Fragment1 on Post {\n    id\n    title\n    content\n    userId\n  }\n": typeof types.TestQuery3Document,
+    "\n  fragment Fragment2 on Post {\n    id\n    title\n    content\n    userId\n  }\n": typeof types.Fragment2FragmentDoc,
+    "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n\n  \n": typeof types.TestQuery4Document,
+};
+const documents: Documents = {
     "\n  query Me {\n    me {\n      id\n      name\n      firstName\n      lastName\n      roles\n    }\n  }\n": types.MeDocument,
     "\n  query TestQuery1 {\n    me {\n      id\n      name\n      email\n    }\n  }\n": types.TestQuery1Document,
     "\n  query TestQuery2 {\n    comment(id: \"1\") {\n      id\n    }\n  }\n": types.TestQuery2Document,
