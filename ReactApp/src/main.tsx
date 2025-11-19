@@ -6,11 +6,11 @@ import { GraphQLClient, GraphQLContext } from "@shane32/graphql";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { OAuthRedirect } from "./components/OAuthRedirect";
 import { LogoutRedirect } from "./components/LogoutRedirect";
-import { AuthProvider, MsAuthManager } from "@shane32/msoauth";
+import { AuthProvider, AuthManager } from "@shane32/msoauth";
 import { UserAuthProvider } from "./contexts/UserAuthProvider.tsx";
 
 // Initialize AuthManager with Azure AD configuration
-const authManager = new MsAuthManager({
+const authManager = new AuthManager({
   clientId: import.meta.env.VITE_AZURE_CLIENT_ID,
   authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_TENANT_ID}/v2.0`,
   scopes: import.meta.env.VITE_AZURE_SCOPES,
@@ -31,7 +31,7 @@ const client = new GraphQLClient({
   sendDocumentIdAsQuery: true,
   transformRequest: async (config) => {
     try {
-      const token = await authManager.getAccessToken();
+      const token = await authManager.getIdToken();
       return {
         ...config,
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -43,7 +43,7 @@ const client = new GraphQLClient({
   },
   generatePayload: async () => {
     try {
-      const token = await authManager.getAccessToken();
+      const token = await authManager.getIdToken();
       return {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         Authorization: `Bearer ${token}`,

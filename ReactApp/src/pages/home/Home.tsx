@@ -1,11 +1,8 @@
 import { Container } from "react-bootstrap";
 import { useQuery } from "@shane32/graphql";
 import * as Queries from "./Home.queries.g";
-import { graphql } from "../../gql/gql";
 import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
-
-void graphql;
 
 interface MSGraphUser {
   id: string;
@@ -28,7 +25,7 @@ function Home() {
     const fetchUsers = async () => {
       try {
         // Get MS Graph access token
-        const token = await auth.authManager.getAccessToken("ms");
+        const token = await auth.authManager.getAccessToken();
 
         // Fetch current user profile from MS Graph API
         const response = await fetch("https://graph.microsoft.com/v1.0/me", {
