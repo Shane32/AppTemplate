@@ -183,7 +183,7 @@ Perform all of the below steps for both development and production environments.
    - Enter an instance name
    - Secure default hostname: Off
    - Publish: Code
-   - Runtime Stack: .NET 8
+   - Runtime Stack: .NET 10
    - Operating System: Linux
    - Region: East US 2
    - Select applicable plan
