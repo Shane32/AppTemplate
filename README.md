@@ -29,6 +29,61 @@ This repository provides a production-ready template for building full-stack app
 - GraphQL Code Generator
 - Azure AD Authentication
 
+## Design Principles / Who It's For
+
+This template is designed for **medium-sized applications** that require a balance between architectural separation and deployment simplicity. It enables **rapid deployment of new applications** by providing a production-ready foundation with authentication, database integration, GraphQL API, and modern SPA architecture already configured and working together. It's ideal for teams that want:
+
+### Architecture & Organization
+
+- **Clear separation of concerns** with distinct projects for database (`AppDb`), GraphQL API (`AppGraphQL`), business services (`AppServices`), and the SPA (`ReactApp`)
+- **Monorepo design** that keeps all code together while maintaining logical boundaries
+- **Single deployment artifact** - despite the separation, everything publishes as one cohesive application
+
+### Developer Experience & Productivity
+
+- **Fast, type-safe development** - C# methods automatically appear as GraphQL mutations, which integrate directly into TypeScript autocomplete when writing GraphQL queries in the SPA
+- **End-to-end type validation** - from database models through GraphQL to React components, with compile-time type checking throughout
+- **AI-friendly codebase** - code is structured to work seamlessly with AI coding agents for rapid feature development and maintenance
+- **React + TypeScript** - leverages modern tooling for rapid, type-safe frontend development
+- **Preconfigured test project** - includes integration tests, unit tests, and GraphQL endpoint testing with approval testing support
+- **Automated CI/CD workflows** - GitHub Actions pipelines for building, testing on pull requests, and deploying to development and production environments
+
+### Authentication & Security
+
+- **Microsoft OAuth integration** (easily adaptable to Google Auth) eliminates password management complexity
+- **Flexible deployment** - works as both public applications and private intranet applications
+- **Query whitelisting** - only GraphQL queries used by the SPA are allowed on the server, protecting against arbitrary queries
+- **Hash-based query distribution** - only operation hashes are sent to clients, with operation names included in hashes for easy production debugging
+
+### Performance & Scalability
+
+- **Direct GraphQL-to-SQL conversion** - GraphQL queries are translated directly to SQL, allowing database indexing optimizations to be fully utilized
+- **Reduced server burden** - efficient query translation minimizes CPU requirements and web transport overhead
+- **Optimized data fetching** - database indexes designed for SPA query patterns ensure fast response times
+
+### Best For
+
+This template is an excellent fit for:
+
+- **Rapid application deployment** - start new medium-sized projects in hours instead of weeks
+- **Internal business applications** with 10-1000 users
+- **Customer-facing applications** requiring authentication and role-based access
+- **Data-driven applications** where query performance matters
+- **Teams using AI coding assistants** for accelerated development
+- **Projects requiring rapid iteration** with strong type safety
+- **Applications needing clear architecture** without microservice complexity
+- **Projects requiring robust testing infrastructure** with automated CI/CD pipelines
+- **Organizations building multiple similar applications** - reuse the proven template structure
+
+### Not Ideal For
+
+This template may be overkill for:
+
+- Simple CRUD applications with minimal business logic
+- Prototypes or proof-of-concept projects
+- Applications with fewer than 5-10 database tables
+- Projects requiring microservice architecture or independent service scaling
+
 ## Development Requirements
 
 - Visual Studio 2026
