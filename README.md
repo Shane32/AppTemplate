@@ -45,6 +45,8 @@ This template is designed for **medium-sized applications** that require a balan
 - **End-to-end type validation** - from database models through GraphQL to React components, with compile-time type checking throughout
 - **AI-friendly codebase** - code is structured to work seamlessly with AI coding agents for rapid feature development and maintenance
 - **React + TypeScript** - leverages modern tooling for rapid, type-safe frontend development
+- **Preconfigured test project** - includes integration tests, unit tests, and GraphQL endpoint testing with approval testing support
+- **Automated CI/CD workflows** - GitHub Actions pipelines for building, testing on pull requests, and deploying to development and production environments
 
 ### Authentication & Security
 
@@ -70,6 +72,7 @@ This template is an excellent fit for:
 - **Teams using AI coding assistants** for accelerated development
 - **Projects requiring rapid iteration** with strong type safety
 - **Applications needing clear architecture** without microservice complexity
+- **Projects requiring robust testing infrastructure** with automated CI/CD pipelines
 - **Organizations building multiple similar applications** - reuse the proven template structure
 
 ### Not Ideal For
