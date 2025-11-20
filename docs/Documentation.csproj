@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Remove="@(Using)"/>
+    <None Include="**\*.md" />
+  </ItemGroup>
+</Project>
