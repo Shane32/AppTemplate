@@ -21,22 +21,17 @@ public class Startup
 
     private static readonly Action<ILogger, Exception?> _migratingDatabase = LoggerMessage.Define(
         LogLevel.Information,
-        new EventId(1, nameof(RunInitializationTests)),
+        new EventId(1, nameof(RunInitializationTestsAsync)),
         "Migrating database");
 
     private static readonly Action<ILogger, Exception?> _databaseMigrated = LoggerMessage.Define(
         LogLevel.Information,
-        new EventId(2, nameof(RunInitializationTests)),
+        new EventId(2, nameof(RunInitializationTestsAsync)),
         "Database migrated");
 
     private static readonly Action<ILogger, Exception?> _databaseMigrationError = LoggerMessage.Define(
         LogLevel.Error,
-        new EventId(3, nameof(RunInitializationTests)),
-        "An error occurred while migrating the database");
-
-    private static readonly Action<ILogger, Exception?> _authenticationFailedError = LoggerMessage.Define(
-        LogLevel.Error,
-        new EventId(4, nameof(JwtBearerEvents.OnAuthenticationFailed)),
+        new EventId(3, nameof(RunInitializationTestsAsync)),
         "An error occurred while migrating the database");
 
     public void ConfigureServices(IServiceCollection services)
@@ -48,11 +43,6 @@ public class Startup
                     OnTokenValidated = async context => {
                         var dbAuthService = context.HttpContext.RequestServices.GetRequiredService<DbAuthService>();
                         await dbAuthService.OnTokenValidatedAsync(context, context.HttpContext.RequestAborted);
-                    },
-                    OnAuthenticationFailed = context => {
-                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
-                        _authenticationFailedError(logger, context.Exception);
-                        return Task.CompletedTask;
                     }
                 };
             });
@@ -106,10 +96,6 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (env.EnvironmentName != "Test") {
-            RunInitializationTests(app.ApplicationServices);
-        }
-
         // Configure the HTTP request pipeline.
         if (!env.IsDevelopment()) {
             //app.UseExceptionHandler("/Home/Error");
@@ -176,25 +162,27 @@ public class Startup
         });
     }
 
-    public static void RunInitializationTests(IServiceProvider serviceProvider)
+    public async Task RunInitializationTestsAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         // Initialize GraphQL
         serviceProvider.GetRequiredService<ISchema>().Initialize();
         // Ensure db model can be read
         serviceProvider.GetRequiredService<IEfGraphQLService<AppDbContext>>().GetPrimaryKeyNames<AppDb.Models.User>(); // any table
         // Auto migrate the database
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var services = scope.ServiceProvider;
         var logger = services.GetRequiredService<ILogger<Startup>>();
-        _migratingDatabase(logger, null);
         try {
             var context = services.GetRequiredService<AppDbContext>();
-            context.Database.Migrate();
+            if ((await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any()) {
+                _migratingDatabase(logger, null);
+                await context.Database.MigrateAsync(cancellationToken);
+                _databaseMigrated(logger, null);
+            }
         } catch (Exception ex) {
             _databaseMigrationError(logger, ex);
             throw;
         }
-        _databaseMigrated(logger, null);
     }
 
     internal static void ConfigureAuthorizationOptions(AuthorizationOptions options)
