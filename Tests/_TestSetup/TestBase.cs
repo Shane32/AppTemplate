@@ -3,6 +3,7 @@ using AppServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Shane32.TestHelpers;
 using TestDb;
@@ -55,6 +56,11 @@ public class TestBase : GraphQLTestBase<Startup>
                     db.ResetDbTrace();
                     return db;
                 });
+                // disable background services (which may interfere with tests or attempt to concurrently access the singleton database)
+                var servicesToRemove = services.Where(sd => sd.ServiceType == typeof(IHostedService)).ToList();
+                foreach (var sd in servicesToRemove) {
+                    services.Remove(sd);
+                }
             });
     }
 
