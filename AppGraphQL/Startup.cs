@@ -19,8 +19,9 @@ public class Startup
         services.AddGraphQL(b => b
             .AddSystemTextJson()
             .AddSchema<AppSchema>()
-            .AddDataLoader()
+#if DEBUG
             .AddErrorInfoProvider(x => x.ExposeExceptionDetails = true)
+#endif
             .AddExecutionStrategy<SerialExecutionStrategy>(GraphQLParser.AST.OperationType.Query)
             .AddScopedSubscriptionExecutionStrategy()
             .AddGraphTypes()
@@ -28,7 +29,6 @@ public class Startup
             .AddDI()
             .AddAutoClrMappings(true, false)
             .AddLinq<AppDbContext>()
-            .ConfigureExecutionOptions(o => o.Root = "") // any object
             .AddUnhandledExceptionHandler(ctx => {
                 var logger = (ctx.FieldContext?.RequestServices ?? ctx.Context?.RequestServices)?.GetRequiredService<ILogger<Startup>>();
                 if (logger == null)
