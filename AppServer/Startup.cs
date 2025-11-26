@@ -7,6 +7,7 @@ using GraphQL.Linq;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace AppServer;
 
@@ -86,6 +87,10 @@ public class Startup
         }, typeof(Program).Assembly, typeof(Query).Assembly);
         services.AddRouting();
         services.AddControllers();
+        services.AddResponseCompression(options => {
+            options.EnableForHttps = true;
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Append("application/graphql-response+json");
+        });
 
         // configure GraphQL services
         AppGraphQL.Startup.ConfigureGraphQL(services, Configuration);
@@ -96,6 +101,8 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        app.UseResponseCompression();
+
         // Configure the HTTP request pipeline.
         if (!env.IsDevelopment()) {
             //app.UseExceptionHandler("/Home/Error");
