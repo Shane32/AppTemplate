@@ -21,7 +21,6 @@ const authManager = new AuthManager({
     // Dispatch a popstate event to trigger react-router navigation
     window.dispatchEvent(new PopStateEvent("popstate"));
   },
-  policies: {},
   logoutRedirectUri: "/oauth/logout",
 });
 
