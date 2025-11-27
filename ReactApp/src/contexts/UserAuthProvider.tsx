@@ -1,6 +1,6 @@
-import { useContext, ReactNode, useState, useEffect } from "react";
+import { ReactNode } from "react";
 import { useQuery } from "@shane32/graphql";
-import { AuthContext } from "@shane32/msoauth";
+import { useAuth } from "@shane32/msoauth";
 import { MeDocument } from "./UserAuthProvider.queries.g";
 import { Role } from "../gql/graphql";
 import { UserAuthContext, UserAuthContextType } from "./UserAuthContext";
@@ -10,8 +10,7 @@ interface UserAuthProviderProps {
 }
 
 export function UserAuthProvider({ children }: UserAuthProviderProps) {
-  const authManager = useContext(AuthContext);
-  const [, setRefresh] = useState({});
+  const authManager = useAuth();
 
   if (!authManager) {
     throw new Error("UserAuthProvider must be used within an AuthProvider");
@@ -22,13 +21,15 @@ export function UserAuthProvider({ children }: UserAuthProviderProps) {
     skip: !isAuthenticated,
   });
 
+  // Note that main.tsx calls resetStore if the auth state changes, so this query
+  // will be re-run automatically on login/logout.
+
   const contextValue: UserAuthContextType = {
     user: (isAuthenticated && data?.me) || null,
     logout: (path) => authManager.logout(path),
     authManager,
     isAuthenticated,
     refresh: () => {
-      setRefresh({});
       refetch();
     },
     loading,
@@ -39,20 +40,6 @@ export function UserAuthProvider({ children }: UserAuthProviderProps) {
       return requiredRoles.some((r) => data.me.roles.includes(r));
     },
   };
-
-  useEffect(() => {
-    const refresh = () => {
-      setRefresh({});
-      refetch();
-    };
-
-    authManager.addEventListener("login", refresh);
-    authManager.addEventListener("logout", refresh);
-    return () => {
-      authManager.removeEventListener("login", refresh);
-      authManager.removeEventListener("logout", refresh);
-    };
-  }, [authManager, refetch]);
 
   return <UserAuthContext.Provider value={contextValue}>{children}</UserAuthContext.Provider>;
 }
