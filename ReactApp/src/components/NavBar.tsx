@@ -5,7 +5,8 @@ import { Container, Navbar, NavDropdown } from "react-bootstrap";
 import NavbarContext from "react-bootstrap/NavbarContext";
 import { appName } from "../App";
 import { PersonCircle } from "react-bootstrap-icons";
-import { useAuth, AuthenticatedTemplate } from "@shane32/msoauth";
+import useAuth from "../hooks/useAuth";
+import { AuthenticatedTemplate } from "@shane32/msoauth";
 
 const changePasswordUrl = "https://account.activedirectory.windowsazure.com/ChangePassword.aspx";
 
