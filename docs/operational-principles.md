@@ -26,11 +26,12 @@ The application automatically runs pending EF Core migrations during startup via
 
 ### 3. Configuration Layering with Azure Key Vault
 
-Configuration loads in sequence: appsettings.json → user secrets → environment variables → appsettings.Local.json → Azure Key Vault (if [`KeyVaultName`](../AppServer/Program.cs:20) is specified), with later sources overriding earlier ones. This enables:
+Configuration loads in sequence: appsettings.json → user secrets → environment variables → appsettings.Local.json → Azure Key Vault (if [`KeyVaultName`](../AppServer/Program.cs:20) is specified), with later sources overriding earlier ones. The `KeyVaultName` itself can be specified in [`appsettings.json`](../AppServer/appsettings.json), user secrets, or environment variables. This enables:
 
 - Local development overrides without modifying committed files
 - Secure production secrets management via Key Vault
 - Environment-specific configuration through environment variables
+- Single deployment artifact that can be published to multiple servers, each using a different Key Vault specified via environment variables
 
 **Alternative:** To use a different secrets management solution (AWS Secrets Manager, HashiCorp Vault, etc.), replace the Azure Key Vault configuration in [`Program.cs`](../AppServer/Program.cs:36) with the appropriate provider.
 
@@ -196,7 +197,26 @@ AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs
 - No ignored warnings that could indicate bugs
 - Consistent code across the entire solution
 
-### 2. Global Implicit Usings
+### 2. Pre-Commit Quality Checks
+
+The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that automatically runs quality checks before each commit, preventing code quality issues from entering the repository. The hook performs three checks:
+
+1. **[`pretty-quick`](../ReactApp/.husky/pre-commit:2)** - Automatically reformats staged SPA files using Prettier, ensuring consistent code formatting
+2. **[`lint`](../ReactApp/.husky/pre-commit:3)** - Runs ESLint to catch code quality issues, potential bugs, and style violations
+3. **[`tsc`](../ReactApp/.husky/pre-commit:4)** - Compiles TypeScript to verify type safety and catch compilation errors
+
+This means:
+
+- Formatting issues in SPA files are automatically fixed before commit
+- Linting errors must be resolved before code can be committed
+- TypeScript compilation errors prevent commits, ensuring type safety
+- All committed code meets quality standards without manual intervention
+
+**Note:** C# code formatting is enforced during CI/CD builds via the [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) [`build-check.yml`](../.github/workflows/build_check.yml:12) workflow, which runs `dotnet format --verify-no-changes` to ensure consistent formatting across the backend codebase.
+
+**Alternative:** To bypass pre-commit hooks temporarily (not recommended), use `git commit --no-verify`. To disable permanently, remove the `.husky` directory, though this will reduce code quality enforcement.
+
+### 3. Global Implicit Usings
 
 Common namespaces like [`AppDb`](../Directory.Build.props:14), [`Microsoft.EntityFrameworkCore`](../Directory.Build.props:16), and [`Microsoft.Extensions.DependencyInjection`](../Directory.Build.props:17) are globally imported, reducing boilerplate. This means:
 
