@@ -6,17 +6,17 @@ This document outlines the key operational principles and design decisions that 
 
 ### 1. Automatic Database Migration on Startup
 
-The application automatically runs pending EF Core migrations during startup via [`RunInitializationTestsAsync()`](../AppServer/Startup.cs:172), ensuring the database schema is always current without manual intervention. This means:
+The application automatically runs pending EF Core migrations during startup via [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L172), ensuring the database schema is always current without manual intervention. This means:
 
 - No need to manually run migration commands in production
 - Database schema updates deploy automatically with application updates
 - Failed migrations will prevent application startup, ensuring schema consistency
 
-**Alternative:** To disable automatic migrations, remove the migration code from [`RunInitializationTestsAsync()`](../AppServer/Startup.cs:184) and run migrations manually via deployment scripts or CI/CD pipelines.
+**Alternative:** To disable automatic migrations, remove the migration code from [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L184) and run migrations manually via deployment scripts or CI/CD pipelines.
 
 ### 2. Dependency Injection Validation Always Enabled
 
-[`ValidateScopes`](../AppServer/Program.cs:27) and [`ValidateOnBuild`](../AppServer/Program.cs:29) are set to `true` in all environments (not just development), catching DI configuration errors at startup rather than runtime. This ensures:
+[`ValidateScopes`](../AppServer/Program.cs#L27) and [`ValidateOnBuild`](../AppServer/Program.cs#L29) are set to `true` in all environments (not just development), catching DI configuration errors at startup rather than runtime. This ensures:
 
 - Scoped services are never accidentally resolved from the root container
 - All dependencies can be resolved before the application starts serving requests
@@ -26,18 +26,18 @@ The application automatically runs pending EF Core migrations during startup via
 
 ### 3. Configuration Layering with Azure Key Vault
 
-Configuration loads in sequence: appsettings.json → user secrets → environment variables → appsettings.Local.json → Azure Key Vault (if [`KeyVaultName`](../AppServer/Program.cs:20) is specified), with later sources overriding earlier ones. The `KeyVaultName` itself can be specified in [`appsettings.json`](../AppServer/appsettings.json), user secrets, or environment variables. This enables:
+Configuration loads in sequence: appsettings.json → user secrets → environment variables → appsettings.Local.json → Azure Key Vault (if [`KeyVaultName`](../AppServer/Program.cs#L20) is specified), with later sources overriding earlier ones. The `KeyVaultName` itself can be specified in [`appsettings.json`](../AppServer/appsettings.json), user secrets, or environment variables. This enables:
 
 - Local development overrides without modifying committed files
 - Secure production secrets management via Key Vault
 - Environment-specific configuration through environment variables
 - Single deployment artifact that can be published to multiple servers, each using a different Key Vault specified via environment variables
 
-**Alternative:** To use a different secrets management solution (AWS Secrets Manager, HashiCorp Vault, etc.), replace the Azure Key Vault configuration in [`Program.cs`](../AppServer/Program.cs:36) with the appropriate provider.
+**Alternative:** To use a different secrets management solution (AWS Secrets Manager, HashiCorp Vault, etc.), replace the Azure Key Vault configuration in [`Program.cs`](../AppServer/Program.cs#L36) with the appropriate provider.
 
 ### 4. Environment-Specific Credential Providers
 
-Azure Key Vault uses [`VisualStudioCredential`](../AppServer/Program.cs:39) in debug mode for local development and [`DefaultAzureCredential`](../AppServer/Program.cs:41) in production for managed identity authentication. This provides:
+Azure Key Vault uses [`VisualStudioCredential`](../AppServer/Program.cs#L39) in debug mode for local development and [`DefaultAzureCredential`](../AppServer/Program.cs#L41) in production for managed identity authentication. This provides:
 
 - Seamless local development with Visual Studio credentials
 - Secure production deployment with managed identities
@@ -47,7 +47,7 @@ Azure Key Vault uses [`VisualStudioCredential`](../AppServer/Program.cs:39) in d
 
 ### 1. Persisted Query System
 
-GraphQL uses a persisted documents approach where queries are pre-registered and referenced by hash. In debug mode, it reads from an [embedded resource](../AppGraphQL/Startup.cs:59); in production, from a [file](../AppGraphQL/Startup.cs:72). This provides:
+GraphQL uses a persisted documents approach where queries are pre-registered and referenced by hash. In debug mode, it reads from an [embedded resource](../AppGraphQL/Startup.cs#L59); in production, from a [file](../AppGraphQL/Startup.cs#L72). This provides:
 
 - Protection against arbitrary GraphQL queries in production
 - Reduced payload sizes (only hashes are sent)
@@ -57,12 +57,12 @@ GraphQL uses a persisted documents approach where queries are pre-registered and
 
 **Alternatives:**
 
-- To allow arbitrary queries in production (e.g., for GraphiQL access), set `AllowOnlyPersistedDocuments` to `false` in [`Startup.cs`](../AppGraphQL/Startup.cs:44), though this reduces security.
-- To support multiple application versions simultaneously, implement a shared persisted query store (e.g., Redis cache, database table, or blob storage) that accumulates queries from all deployments rather than replacing them. Modify the `GetQueryDelegate` in [`Startup.cs`](../AppGraphQL/Startup.cs:47) to read from this shared store.
+- To allow arbitrary queries in production (e.g., for GraphiQL access), set `AllowOnlyPersistedDocuments` to `false` in [`Startup.cs`](../AppGraphQL/Startup.cs#L44), though this reduces security.
+- To support multiple application versions simultaneously, implement a shared persisted query store (e.g., Redis cache, database table, or blob storage) that accumulates queries from all deployments rather than replacing them. Modify the `GetQueryDelegate` in [`Startup.cs`](../AppGraphQL/Startup.cs#L47) to read from this shared store.
 
 ### 2. Serial Query Execution Strategy
 
-GraphQL queries use [`SerialExecutionStrategy`](../AppGraphQL/Startup.cs:25) rather than parallel execution, ensuring predictable database query ordering and avoiding potential race conditions. This provides:
+GraphQL queries use [`SerialExecutionStrategy`](../AppGraphQL/Startup.cs#L25) rather than parallel execution, ensuring predictable database query ordering and avoiding potential race conditions. This provides:
 
 - Consistent query execution order
 - Easier debugging and profiling
@@ -70,7 +70,7 @@ GraphQL queries use [`SerialExecutionStrategy`](../AppGraphQL/Startup.cs:25) rat
 
 ### 3. Scoped Subscription Execution
 
-GraphQL subscriptions use [`AddScopedSubscriptionExecutionStrategy()`](../AppGraphQL/Startup.cs:26), creating a new DI scope per subscription event to properly handle scoped services like DbContext. This ensures:
+GraphQL subscriptions use [`AddScopedSubscriptionExecutionStrategy()`](../AppGraphQL/Startup.cs#L26), creating a new DI scope per subscription event to properly handle scoped services like DbContext. This ensures:
 
 - Each subscription event gets a fresh DbContext
 - No entity tracking conflicts between events
@@ -78,7 +78,7 @@ GraphQL subscriptions use [`AddScopedSubscriptionExecutionStrategy()`](../AppGra
 
 ### 4. WebSocket Protocol Restriction
 
-WebSocket subscriptions only support the [newer graphql-transport-ws protocol](../AppServer/Startup.cs:143) with secure keep-alive mechanics, not the legacy subscriptions-transport-ws. This ensures:
+WebSocket subscriptions only support the [newer graphql-transport-ws protocol](../AppServer/Startup.cs#L143) with secure keep-alive mechanics, not the legacy subscriptions-transport-ws. This ensures:
 
 - Reliable connection management with timeouts
 - Better error handling and reconnection logic
@@ -86,7 +86,7 @@ WebSocket subscriptions only support the [newer graphql-transport-ws protocol](.
 
 ### 5. Response Compression for GraphQL
 
-HTTPS response compression is [explicitly enabled](../AppServer/Startup.cs:91) for `application/graphql-response+json` MIME type to reduce payload sizes. This provides:
+HTTPS response compression is [explicitly enabled](../AppServer/Startup.cs#L91) for `application/graphql-response+json` MIME type to reduce payload sizes. This provides:
 
 - Faster response times for large GraphQL queries
 - Reduced bandwidth usage
@@ -94,7 +94,7 @@ HTTPS response compression is [explicitly enabled](../AppServer/Startup.cs:91) f
 
 ### 6. GraphQL-to-SQL Direct Translation
 
-The [`AddLinq<AppDbContext>()`](../AppGraphQL/Startup.cs:31) configuration enables direct translation of GraphQL queries to SQL, allowing database indexes to optimize query performance. This means:
+The [`AddLinq<AppDbContext>()`](../AppGraphQL/Startup.cs#L31) configuration enables direct translation of GraphQL queries to SQL, allowing database indexes to optimize query performance. This means:
 
 - GraphQL queries become efficient SQL queries
 - Database indexes directly improve GraphQL performance
@@ -104,17 +104,17 @@ The [`AddLinq<AppDbContext>()`](../AppGraphQL/Startup.cs:31) configuration enabl
 
 ### 1. User Auto-Provisioning on Authentication
 
-When a user authenticates via JWT, [`DbAuthService`](../AppServer/DbAuthService.cs:34) automatically creates a database user record if one doesn't exist, syncing name/email on each login. This means:
+When a user authenticates via JWT, [`DbAuthService`](../AppServer/DbAuthService.cs#L34) automatically creates a database user record if one doesn't exist, syncing name/email on each login. This means:
 
 - No separate user registration flow needed
 - User information stays synchronized with identity provider
 - First-time users are automatically onboarded
 
-**Alternative:** To require explicit user registration, modify [`DbAuthService.OnTokenValidatedAsync()`](../AppServer/DbAuthService.cs:34) to reject authentication if the user doesn't exist in the database, and create a separate registration endpoint.
+**Alternative:** To require explicit user registration, modify [`DbAuthService.OnTokenValidatedAsync()`](../AppServer/DbAuthService.cs#L34) to reject authentication if the user doesn't exist in the database, and create a separate registration endpoint.
 
 ### 2. Claims Sanitization for Security
 
-All `DbUserId` and role claims are [cleared from incoming tokens](../AppServer/DbAuthService.cs:104) before being repopulated from the database, preventing claim injection attacks. This ensures:
+All `DbUserId` and role claims are [cleared from incoming tokens](../AppServer/DbAuthService.cs#L104) before being repopulated from the database, preventing claim injection attacks. This ensures:
 
 - Roles are always sourced from the database, not the JWT token
 - Users cannot forge elevated permissions
@@ -122,7 +122,7 @@ All `DbUserId` and role claims are [cleared from incoming tokens](../AppServer/D
 
 ### 3. Authorization Required by Default
 
-The GraphQL endpoint requires [`AuthorizationRequired = true`](../AppServer/Startup.cs:125) with a minimum viewer policy, meaning all requests must be authenticated unless explicitly overridden. This provides:
+The GraphQL endpoint requires [`AuthorizationRequired = true`](../AppServer/Startup.cs#L125) with a minimum viewer policy, meaning all requests must be authenticated unless explicitly overridden. This provides:
 
 - Secure by default configuration
 - No accidental exposure of unauthenticated endpoints
@@ -134,7 +134,7 @@ The GraphQL endpoint requires [`AuthorizationRequired = true`](../AppServer/Star
 
 ### 1. Single Deployment Artifact (Backend Serves SPA)
 
-The template is configured to deploy both the backend and frontend as a single artifact to Azure App Service. In debug builds, the backend [proxies requests to Vite](../AppServer/Startup.cs:166) running on port 5173 for hot module replacement. In production, the backend serves the built SPA files from the `wwwroot` directory. This provides:
+The template is configured to deploy both the backend and frontend as a single artifact to Azure App Service. In debug builds, the backend [proxies requests to Vite](../AppServer/Startup.cs#L166) running on port 5173 for hot module replacement. In production, the backend serves the built SPA files from the `wwwroot` directory. This provides:
 
 - Simplified deployment with a single Azure App Service
 - Single URL for the entire application
@@ -153,7 +153,7 @@ The template is configured to deploy both the backend and frontend as a single a
 
 ### 2. Type-Safe GraphQL Code Generation
 
-The frontend uses the backend's [introspection schema](../ReactApp/codegen.ts:4) from approval tests to generate TypeScript types, ensuring compile-time type safety across the stack. This provides:
+The frontend uses the backend's [introspection schema](../ReactApp/codegen.ts#L4) from approval tests to generate TypeScript types, ensuring compile-time type safety across the stack. This provides:
 
 - TypeScript autocomplete for all GraphQL queries
 - Compile-time errors when backend schema changes
@@ -163,7 +163,7 @@ The frontend uses the backend's [introspection schema](../ReactApp/codegen.ts:4)
 
 ### 1. SQLite for Testing, SQL Server for Production
 
-Tests use an [in-memory SQLite database](../Tests/_TestSetup/TestBase.cs:49) while development/production use SQL Server, requiring schema compatibility considerations. This means:
+Tests use an [in-memory SQLite database](../Tests/_TestSetup/TestBase.cs#L49) while development/production use SQL Server, requiring schema compatibility considerations. This means:
 
 - Fast, isolated test execution
 - No need for test database infrastructure
@@ -173,7 +173,7 @@ Tests use an [in-memory SQLite database](../Tests/_TestSetup/TestBase.cs:49) whi
 
 ### 2. Change Tracker Clearing in Tests
 
-Test queries [clear the EF change tracker](../Tests/_TestSetup/TestBase.cs:75) before and after execution by default to ensure tests don't inadvertently rely on cached entities. This ensures:
+Test queries [clear the EF change tracker](../Tests/_TestSetup/TestBase.cs#L75) before and after execution by default to ensure tests don't inadvertently rely on cached entities. This ensures:
 
 - Each test query sees fresh data from the database
 - No hidden dependencies between test operations
@@ -181,7 +181,7 @@ Test queries [clear the EF change tracker](../Tests/_TestSetup/TestBase.cs:75) b
 
 ### 3. AutoMapper with EF Core Integration
 
-AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs:86) and collection mappers, enabling direct mapping between entities and DTOs with proper relationship handling. This provides:
+AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs#L86) and collection mappers, enabling direct mapping between entities and DTOs with proper relationship handling. This provides:
 
 - Automatic mapping configuration based on EF model
 - Proper handling of navigation properties
@@ -191,7 +191,7 @@ AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs
 
 ### 1. Warnings Treated as Errors
 
-[`TreatWarningsAsErrors`](../Directory.Build.props:6) is enabled globally, enforcing code quality by preventing compilation with any warnings. This ensures:
+[`TreatWarningsAsErrors`](../Directory.Build.props#L6) is enabled globally, enforcing code quality by preventing compilation with any warnings. This ensures:
 
 - High code quality standards
 - No ignored warnings that could indicate bugs
@@ -201,9 +201,9 @@ AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs
 
 The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that automatically runs quality checks before each commit, preventing code quality issues from entering the repository. The hook performs three checks:
 
-1. **[`pretty-quick`](../ReactApp/.husky/pre-commit:2)** - Automatically reformats staged SPA files using Prettier, ensuring consistent code formatting
-2. **[`lint`](../ReactApp/.husky/pre-commit:3)** - Runs ESLint to catch code quality issues, potential bugs, and style violations
-3. **[`tsc`](../ReactApp/.husky/pre-commit:4)** - Compiles TypeScript to verify type safety and catch compilation errors
+1. **[`pretty-quick`](../ReactApp/.husky/pre-commit#L2)** - Automatically reformats staged SPA files using Prettier, ensuring consistent code formatting
+2. **[`lint`](../ReactApp/.husky/pre-commit#L3)** - Runs ESLint to catch code quality issues, potential bugs, and style violations
+3. **[`tsc`](../ReactApp/.husky/pre-commit#L4)** - Compiles TypeScript to verify type safety and catch compilation errors
 
 This means:
 
@@ -212,13 +212,13 @@ This means:
 - TypeScript compilation errors prevent commits, ensuring type safety
 - All committed code meets quality standards without manual intervention
 
-**Note:** C# code formatting is enforced during CI/CD builds via the [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) [`build-check.yml`](../.github/workflows/build_check.yml:12) workflow, which runs `dotnet format --verify-no-changes` to ensure consistent formatting across the backend codebase.
+**Note:** C# code formatting is enforced during CI/CD builds via the [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) [`build-check.yml`](../.github/workflows/build_check.yml#L12) workflow, which runs `dotnet format --verify-no-changes` to ensure consistent formatting across the backend codebase.
 
 **Alternative:** To bypass pre-commit hooks temporarily (not recommended), use `git commit --no-verify`. To disable permanently, remove the `.husky` directory, though this will reduce code quality enforcement.
 
 ### 3. Global Implicit Usings
 
-Common namespaces like [`AppDb`](../Directory.Build.props:14), [`Microsoft.EntityFrameworkCore`](../Directory.Build.props:16), and [`Microsoft.Extensions.DependencyInjection`](../Directory.Build.props:17) are globally imported, reducing boilerplate. This means:
+Common namespaces like [`AppDb`](../Directory.Build.props#L14), [`Microsoft.EntityFrameworkCore`](../Directory.Build.props#L16), and [`Microsoft.Extensions.DependencyInjection`](../Directory.Build.props#L17) are globally imported, reducing boilerplate. This means:
 
 - Less repetitive using statements
 - Cleaner code files
