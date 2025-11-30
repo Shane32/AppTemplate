@@ -154,15 +154,25 @@ To work on the frontend using a production backend:
    - The application will be available at http://localhost:5173
    - The `.env.development.local` file will be ignored when committing to GitHub
 
+## ⚙️ Operational Principles
+
+This template includes several important operational behaviors that affect how the application functions. For example:
+
+- **Database migrations run automatically on startup** - Schema changes deploy with your code without manual intervention
+- **Dependency injection is validated at startup** - Configuration errors are caught before the application serves requests
+- **Users are auto-provisioned on first login** - No separate registration flow is needed
+
+These and other operational principles are documented in detail in the [Operational Principles](docs/operational-principles.md) guide. **Review this document before working with the template** to understand how the application behaves and what alternatives are available if you need different behavior.
+
 ## 🗄️ Database Setup
 
 The template uses **SQL Server LocalDB** for local development (automatically installed with Visual Studio) and **SQLite** for testing. The database is automatically created on first run using Entity Framework migrations.
 
 For production deployments, the template is designed for **Azure SQL Database** with passwordless authentication using managed identities. This eliminates the need to store database passwords in configuration - your Azure credentials are used in development, and the web app's managed identity is used in production.
 
-The template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, and recreate the migrations.
-
 See the [Azure Database Setup](docs/azure-database-setup.md) guide for production database configuration.
+
+Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations.
 
 ## 🔐 Azure App Registration (Required for Production)
 
