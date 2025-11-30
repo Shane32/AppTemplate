@@ -92,6 +92,8 @@ HTTPS response compression is [explicitly enabled](../AppServer/Startup.cs#L91) 
 - Reduced bandwidth usage
 - Better performance on slower connections
 
+**Security Note:** Please note that enabling response compression over HTTPS can lead to CRIME and BREACH attacks. These side-channel attacks typically affect sites that rely on cookies for authentication. Please read [this](https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression) and [this](http://www.breachattack.com/#howitworks) for more details.
+
 ### 6. GraphQL-to-SQL Direct Translation
 
 The [`AddLinq<AppDbContext>()`](../AppGraphQL/Startup.cs#L31) configuration enables direct translation of GraphQL queries to SQL, allowing database indexes to optimize query performance. This means:
