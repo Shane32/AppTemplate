@@ -294,4 +294,8 @@ type Post {
 
 **Error Handling:** When an error occurs (e.g., post not found, authorization failure), GraphQL returns an error in the `errors` array and the field resolves to `null`, which bubbles up to the nearest nullable parent. This is why root query fields should be non-null - errors will appear in the response's `errors` array with proper error messages.
 
+**Important for Mutations:** When executing multiple mutations from the client, each mutation should be in a separate GraphQL operation. If multiple mutations are combined in a single operation and one fails, null bubbling may cause the entire operation to return no data, even if some mutations succeeded. Separating mutations into individual operations ensures that successful mutations return their data while failed mutations return appropriate errors.
+
+**Nullability Inference:** GraphQL.NET automatically infers nullability from C# types wherever possible - non-nullable reference types become non-null GraphQL types, and nullable types become nullable GraphQL types. However, when defining custom expressions for reference field types (e.g., using `EfField()` with a resolver expression), you may need to explicitly specify `nullable: true` to indicate a nullable type, as the framework cannot always infer nullability from lambda expressions.
+
 **Implementation:** See [`PostGraphType.cs`](../AppGraphQL/QueryGraphs/PostGraphType.cs) and other graph types for examples of non-null field definitions.
