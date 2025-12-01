@@ -4,9 +4,8 @@ This guide covers creating and configuring an Azure SQL Database for your applic
 
 ## Prerequisites
 
-- Azure subscription (same as your web app)
-- Resource group created
-- Web app created with system-assigned managed identity enabled
+- Azure subscription
+- Resource group created (or permission to create one)
 
 ## Create Azure SQL Database
 
@@ -39,29 +38,17 @@ If you need to create a new SQL Server:
 
 ## Configure Database Access
 
-The web app needs permission to access the database using its managed identity.
+As the database creator, you automatically have full access to the database through Microsoft Entra authentication. This allows Visual Studio to authenticate using your Azure credentials during local development.
 
 ### Connect to Database
 
 1. Navigate to your SQL Database in Azure Portal
 2. Click **Query editor** (or use SQL Server Management Studio)
-3. Authenticate using Microsoft Entra authentication
-
-### Grant Permissions
-
-Execute the following SQL commands, replacing `myapp-dev` with your web app name:
-
-```sql
--- Create user for the web app's managed identity
-CREATE USER [myapp-dev] FROM EXTERNAL PROVIDER;
-
--- Grant db_owner role (full access)
-ALTER ROLE db_owner ADD MEMBER [myapp-dev];
-```
+3. Authenticate using Microsoft Entra authentication with your account
 
 ### Add Additional Users (Optional)
 
-To grant other users access to the database:
+To grant other users or developers access to the database for local development:
 
 ```sql
 -- For read-only access
@@ -72,6 +59,10 @@ ALTER ROLE db_datareader ADD MEMBER [user@domain.com];
 CREATE USER [user@domain.com] FROM EXTERNAL PROVIDER;
 ALTER ROLE db_datawriter ADD MEMBER [user@domain.com];
 ALTER ROLE db_datareader ADD MEMBER [user@domain.com];
+
+-- For owner access (to migrate the database)
+CREATE USER [user@domain.com] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_owner ADD MEMBER [user@domain.com];
 ```
 
 ## Configure Connection String
@@ -84,17 +75,9 @@ The application will automatically use the managed identity to connect to the da
 Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;
 ```
 
-### Update Application Configuration
+### Update Local Configuration
 
-1. Navigate to your web app in Azure Portal
-2. Go to **Configuration** > **Application settings**
-3. Add or update the connection string:
-   - **Name**: `ConnectionStrings__DefaultConnection`
-   - **Value**: Your connection string (see format above)
-   - **Type**: Custom
-4. Click **Save**
-
-Alternatively, update `AppServer/appsettings.json` in your repository:
+Update `AppServer/appsettings.json` in your repository:
 
 ```json
 {
@@ -119,11 +102,13 @@ The database will be automatically initialized on first application run using En
 
 ## Important Notes
 
-- The web app's system-assigned managed identity must be enabled before granting database permissions
+- As the database creator, you automatically have db_owner permissions
+- Additional developers need to be explicitly granted access (see above)
 - Use Microsoft Entra authentication for enhanced security
-- The connection string uses `Authentication=Active Directory Default` to use the managed identity
+- The connection string uses `Authentication=Active Directory Default` to use your Azure credentials locally
 - Database schema is managed through Entity Framework migrations in the application
+- For production deployment, the web app's managed identity will need database permissions (configured during [Azure Web App Setup](azure-webapp-setup.md))
 
 ## Next Steps
 
-Continue to [GitHub Actions Configuration](github-actions-setup.md) to set up automated deployments.
+Continue to [Application Authentication Setup](azure-authentication-setup.md) to configure Azure AD authentication for your application.

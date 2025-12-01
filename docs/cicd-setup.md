@@ -14,10 +14,11 @@ The CI/CD pipeline includes:
 
 Follow these guides in order to set up your CI/CD pipeline:
 
-1. [Azure Web App Setup](azure-webapp-setup.md) - Create and configure the Azure Web App for hosting
-2. [Azure Database Setup](azure-database-setup.md) - Create and configure the Azure SQL Database
-3. [GitHub Actions Configuration](github-actions-setup.md) - Configure GitHub Actions workflows and secrets
-4. [Azure Key Vault Setup](azure-keyvault-setup.md) (Optional) - Set up Key Vault for secrets management
+1. [Azure Database Setup](azure-database-setup.md) - Create and configure the Azure SQL Database
+2. [Application Authentication Setup](azure-authentication-setup.md) - Create and configure Azure AD app registration
+3. [Azure Web App Setup](azure-webapp-setup.md) - Create and configure the Azure Web App for hosting
+4. [GitHub Actions Configuration](github-actions-setup.md) - Configure GitHub Actions workflows and secrets
+5. [Azure Key Vault Setup](azure-keyvault-setup.md) (Optional) - Set up Key Vault for secrets management
 
 ## Quick Reference
 

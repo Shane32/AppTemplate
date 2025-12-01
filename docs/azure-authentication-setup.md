@@ -263,4 +263,4 @@ if (User.IsInRole("Admin"))
 
 ## Next Steps
 
-Your CI/CD setup is now complete! Review the [CI/CD Setup Guide](cicd-setup.md) for an overview of all components.
+Continue to [Azure Web App Setup](azure-webapp-setup.md) to create and configure your hosting environment.
