@@ -173,21 +173,15 @@ Tests use an [in-memory SQLite database](../Tests/_TestSetup/TestBase.cs#L49) wh
 
 **Alternative:** To test against SQL Server, configure tests to use a real SQL Server database (LocalDB or containerized) instead of SQLite, though this will slow down test execution. See the [LocalDb](https://www.nuget.org/packages/LocalDb) NuGet package which provides a simple way to utilize SQL Server Express LocalDB in place of SQLite within the provided testing framework.
 
-### 2. Change Tracker Clearing in Tests
-
-Test queries [clear the EF change tracker](../Tests/_TestSetup/TestBase.cs#L75) before and after execution by default to ensure tests don't inadvertently rely on cached entities. This ensures:
-
-- Each test query sees fresh data from the database
-- No hidden dependencies between test operations
-- Predictable test behavior
-
-### 3. AutoMapper with EF Core Integration
+### 2. AutoMapper with EF Core Integration
 
 AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs#L86) and collection mappers, enabling direct mapping between entities and DTOs with proper relationship handling. This provides:
 
 - Automatic mapping configuration based on EF model
 - Proper handling of navigation properties
 - Collection synchronization support
+
+**GraphQL Mutation Usage:** AutoMapper reduces boilerplate in mutations by mapping input models to entities. The [`AutoMapperProfile`](../AppGraphQL/AutoMapper/AutoMapperProfile.cs) defines mappings like [`AddPostInput`](../AppGraphQL/InputModels/AddPostInput.cs) → [`Post`](../AppDb/Models/Post.cs), which [`PostMutation`](../AppGraphQL/MutationGraphs/PostMutation.cs) uses via `_mapper.Map<Post>(input)` for creates and `_mapper.Map(input, post)` for updates. Profiles are automatically discovered from registered assemblies.
 
 ## Code Quality & Development Standards
 

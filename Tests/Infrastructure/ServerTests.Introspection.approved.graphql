@@ -1,3 +1,9 @@
+input AddPostInput {
+  content: String!
+  title: String!
+  userId: Int!
+}
+
 type Comment {
   content: String!
   createdAt: DateTimeOffset!
@@ -58,9 +64,9 @@ type PostEdge {
 }
 
 type PostMutation {
-  add(content: String!, title: String!, userId: ID!): Post!
+  add(input: AddPostInput!): Post!
   delete(id: ID!): Boolean!
-  update(content: String!, id: ID!, title: String!): Post!
+  update(id: ID!, input: UpdatePostInput!): Post!
 }
 
 type Query {
@@ -77,6 +83,11 @@ enum Role {
   ADMIN
   OPERATOR
   SYS_ADMIN
+}
+
+input UpdatePostInput {
+  content: String!
+  title: String!
 }
 
 type User {

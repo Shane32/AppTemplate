@@ -84,7 +84,9 @@ public class Startup
         services.AddAutoMapper((serviceProvider, config) => {
             config.AddCollectionMappers();
             config.UseEntityFrameworkCoreModel<AppDbContext>(serviceProvider);
-        }, typeof(Program).Assembly, typeof(Query).Assembly);
+            config.ConstructServicesUsing(serviceProvider.GetRequiredService);
+            config.AddProfile(serviceProvider.GetRequiredService<AppGraphQL.AutoMapper.AutoMapperProfile>());
+        }, typeof(Program).Assembly);
         services.AddRouting();
         services.AddControllers();
         services.AddResponseCompression(options => {

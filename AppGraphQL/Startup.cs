@@ -16,6 +16,7 @@ public class Startup
     {
         var persistedDocuments = ReadPersistedDocuments();
 
+        services.AddSingleton<AutoMapper.AutoMapperProfile>();
         services.AddGraphQL(b => b
             .AddSystemTextJson()
             .AddSchema<AppSchema>()

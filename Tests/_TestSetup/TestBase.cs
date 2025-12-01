@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Time.Testing;
 using Microsoft.Identity.Web;
 using Shane32.TestHelpers;
 using TestDb;
@@ -15,6 +16,11 @@ namespace Tests;
 /// </summary>
 public class TestBase : GraphQLTestBase<Startup>
 {
+    /// <summary>
+    /// Gets or sets the TimeProvider to use for testing.
+    /// </summary>
+    protected FakeTimeProvider TimeProvider { get; } = new FakeTimeProvider(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
     /// <summary>
     /// Gets or sets the user ID to use for testing.
     /// </summary>
@@ -44,6 +50,8 @@ public class TestBase : GraphQLTestBase<Startup>
 
         webHostBuilder
             .ConfigureTestServices(services => {
+                // override TimeProvider with FakeTimeProvider for stable testing
+                services.AddSingleton<TimeProvider>(TimeProvider);
                 // reconfigure database connection to use the SQLite in-memory database
                 services.AddSingleton(_ => {
                     var c = new SqliteConnection("Data Source=:memory:");
