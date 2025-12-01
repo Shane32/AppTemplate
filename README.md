@@ -170,7 +170,7 @@ The template uses **SQL Server LocalDB** for local development (automatically in
 
 For production deployments, the template is designed for **Azure SQL Database** with passwordless authentication using managed identities. This eliminates the need to store database passwords in configuration - your Azure credentials are used in development, and the web app's managed identity is used in production.
 
-See the [Azure Database Setup](docs/azure-database-setup.md) guide for production database configuration.
+For production database configuration, see the [CI/CD Configuration](#-cicd-configuration) section below, which provides a complete setup guide including database, authentication, and deployment configuration.
 
 Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations.
 
@@ -180,7 +180,7 @@ The template includes a pre-configured Azure AD client ID that **only works with
 
 Before deploying to development, staging, or production, you must create your own Azure App Registration with redirect URIs configured for your deployment URLs. Each environment should have its own app registration (or at minimum, its own redirect URI in a shared registration).
 
-See the [Application Authentication Setup](docs/azure-authentication-setup.md) guide for complete instructions on creating and configuring your app registration.
+For complete authentication setup instructions, see the [CI/CD Configuration](#-cicd-configuration) section below, which includes authentication configuration as part of the deployment setup process.
 
 ## 🚢 CI/CD Configuration
 
@@ -192,10 +192,13 @@ For complete setup instructions, see the [CI/CD Setup Guide](docs/cicd-setup.md)
 
 ### Setup Overview
 
-1. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create and configure Azure Web App with managed identity
-2. **[Azure Database Setup](docs/azure-database-setup.md)** - Create and configure Azure SQL Database
-3. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
-4. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
+Follow these steps in order to set up production deployment:
+
+1. **[Azure Database Setup](docs/azure-database-setup.md)** - Create and configure Azure SQL Database
+2. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Create and configure Azure AD app registration
+3. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create and configure Azure Web App with managed identity
+4. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
+5. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
 
 ### What's Included
 

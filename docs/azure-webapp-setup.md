@@ -89,12 +89,49 @@ The managed identity needs permission to deploy to the web app.
    - Select the managed identity you created above
 5. Click **Review + assign**
 
+## Grant Database Access to Web App
+
+The web app's managed identity needs permission to access the database for production deployment.
+
+### Prerequisites
+
+- Azure SQL Database created (see [Azure Database Setup](azure-database-setup.md))
+- Web app created with system-assigned managed identity enabled (completed above)
+
+### Grant Permissions
+
+1. Navigate to your SQL Database in Azure Portal
+2. Click **Query editor** (or use SQL Server Management Studio)
+3. Authenticate using Microsoft Entra authentication
+4. Execute the following SQL commands, replacing `myapp-dev` with your web app name:
+
+```sql
+-- Create user for the web app's managed identity
+CREATE USER [myapp-dev] FROM EXTERNAL PROVIDER;
+
+-- Grant db_owner role (full access)
+ALTER ROLE db_owner ADD MEMBER [myapp-dev];
+```
+
+### Configure Connection String in Web App
+
+1. Navigate to your web app in Azure Portal
+2. Go to **Configuration** > **Application settings**
+3. Add or update the connection string:
+   - **Name**: `ConnectionStrings__DefaultConnection`
+   - **Value**: `Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;`
+   - **Type**: Custom
+4. Click **Save**
+
+**Note:** Replace `your-server` and `your-database` with your actual SQL Server and database names.
+
 ## Important Notes
 
 - The managed identity must be in the same subscription as the web app for deployment to succeed
 - Create separate managed identities for development and production if they're in different subscriptions
 - Keep the Client ID, Subscription ID, and Tenant ID secure - you'll need them for GitHub Actions setup
+- The web app's system-assigned managed identity must be enabled before granting database permissions
 
 ## Next Steps
 
-Continue to [Azure Database Setup](azure-database-setup.md) to configure your database.
+Continue to [GitHub Actions Configuration](github-actions-setup.md) to set up automated deployments.
