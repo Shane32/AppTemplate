@@ -22,6 +22,7 @@
       "posts": {
         "update": {
           "content": "World2",
+          "createdAt": "2024-10-25T00:00:00\u002B00:00",
           "id": "1",
           "title": "Hello2",
           "user": {

@@ -16,6 +16,7 @@ public class Startup
     {
         var persistedDocuments = ReadPersistedDocuments();
 
+        services.AddSingleton<AutoMapper.AutoMapperProfile>();
         services.AddGraphQL(b => b
             .AddSystemTextJson()
             .AddSchema<AppSchema>()
@@ -46,6 +47,7 @@ public class Startup
                 o.AllowedPrefixes.Add(null);
                 o.GetQueryDelegate = (options, prefix, hash) => persistedDocuments == null || !persistedDocuments.TryGetValue(hash, out var query) ? default : new(query);
             })
+            .ValidateServices()
         );
     }
 

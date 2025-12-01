@@ -7,12 +7,13 @@ public class PostTests : TestBase
     {
         await Db.SeedAsync<User>();
         var response = await RunQueryAsync("""
-            mutation($title: String!, $content: String!, $userId: ID!) {
+            mutation($input: AddPostInput!) {
               posts {
-                add(title: $title, content: $content, userId: $userId) {
+                add(input: $input) {
                   id
                   title
                   content
+                  createdAt
                   user {
                     id
                     name
@@ -22,9 +23,11 @@ public class PostTests : TestBase
             }
             """,
             new {
-                title = "Hello",
-                content = "World",
-                userId = 1
+                input = new {
+                    title = "Hello",
+                    content = "World",
+                    userId = 1
+                }
             });
         response.ShouldMatchApproved();
     }
@@ -35,12 +38,13 @@ public class PostTests : TestBase
         await Db.SeedAsync<Post>();
         var oldEntry = await Db.FindAsync<Post>(1);
         var response = await RunQueryAsync("""
-            mutation($id: ID!, $title: String!, $content: String!) {
+            mutation($id: ID!, $input: UpdatePostInput!) {
               posts {
-                update(id: $id, title: $title, content: $content) {
+                update(id: $id, input: $input) {
                   id
                   title
                   content
+                  createdAt
                   user {
                     id
                     name
@@ -51,8 +55,10 @@ public class PostTests : TestBase
             """,
             new {
                 id = 1,
-                title = "Hello2",
-                content = "World2"
+                input = new {
+                    title = "Hello2",
+                    content = "World2"
+                }
             });
         var newEntry = await Db.FindAsync<Post>(1);
         var actual = new {
