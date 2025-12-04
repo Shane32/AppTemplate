@@ -172,7 +172,7 @@ For production deployments, the template is designed for **Azure SQL Database** 
 
 For production database configuration, see the [Azure Database Setup](docs/azure-database-setup.md) guide, or the [CI/CD Configuration](#-cicd-configuration) section below for a complete setup guide including database, authentication, and deployment configuration.
 
-Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it as a user secret during development and as an environment variable in production (configured in the Azure Web App settings).
+Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by both development and production environments.
 
 ## 🔐 Azure App Registration (Required for Production)
 
