@@ -2,15 +2,6 @@
 
 This guide covers configuring Azure AD (Microsoft Entra ID) authentication for your application.
 
-## Overview
-
-This application uses Azure AD for user authentication, providing:
-
-- Single sign-on with Microsoft accounts
-- No password management required
-- Integration with organizational identity
-- Role-based access control
-
 ## Prerequisites
 
 - Azure subscription
@@ -26,11 +17,7 @@ This application uses Azure AD for user authentication, providing:
 
 ### Configure Registration
 
-1. **Name**: Enter a descriptive name
-
-   - For development: `MyApp - Development`
-   - For production: `MyApp - Production`
-   - Tip: Use separate registrations for each environment
+1. **Name**: Enter a descriptive name (e.g., `MyApp`)
 
 2. **Supported account types**: Choose based on your needs
 
@@ -44,10 +31,8 @@ This application uses Azure AD for user authentication, providing:
 3. **Redirect URI**:
 
    - Platform: **Single-page application (SPA)**
-   - URI: Enter your application URL with `/oauth/callback` path
-     - Development: `https://localhost:44323/oauth/callback`
-     - Production: `https://your-app.azurewebsites.net/oauth/callback`
-   - You can add multiple redirect URIs later
+   - URI: `https://localhost:44323/oauth/callback` (development login callback)
+   - Note: Additional redirect URIs (development logout callback, production URLs, etc.) will be added in a following step
 
 4. Click **Register**
 
@@ -79,14 +64,18 @@ From the **Overview** page, copy the **Application (client) ID**. You'll need th
 5. Click **Add**
 6. If prompted about Microsoft Graph permissions, click **Yes, add the required Graph permission**
 
-### 4. Add Additional Redirect URIs (if needed)
+### 4. Add Additional Redirect URIs
 
 1. Go to **Authentication**
 2. Under **Single-page application**, click **Add URI**
-3. Add any additional URLs (e.g., for different environments)
+3. Add the following redirect URIs:
+   - Development logout: `https://localhost:44323/oauth/logout`
+   - Production login: `https://your-app.azurewebsites.net/oauth/callback` (replace `your-app.azurewebsites.net` with your actual production URL)
+   - Production logout: `https://your-app.azurewebsites.net/oauth/logout` (replace `your-app.azurewebsites.net` with your actual production URL)
+   - (Optional) If developers need to work on the frontend locally while connecting to a production backend:
+     - `http://localhost:5173/oauth/callback`
+     - `http://localhost:5173/oauth/logout`
 4. Click **Save**
-
-**Note**: If developers need to work on the frontend locally while connecting to a production backend, add `http://localhost:5173/oauth/callback` as a redirect URI. See the "Working with Production Backend" section in the main README for details.
 
 ## Configure Application Settings
 
@@ -94,7 +83,26 @@ Update your application configuration with the app registration details.
 
 ### Backend Configuration
 
-Update `AppServer/appsettings.json`:
+Update `AppServer/appsettings.json` with one of the following configurations:
+
+**Multi-tenant configuration** (allows any Microsoft account):
+
+```json
+{
+  "Authentication": {
+    "DefaultScheme": "Bearer",
+    "Schemes": {
+      "Bearer": {
+        "ValidAudience": "your-client-id-here",
+        "Authority": "https://login.microsoftonline.com/common",
+        "ValidateIssuer": false
+      }
+    }
+  }
+}
+```
+
+**Single-tenant configuration** (allows only accounts from your organization):
 
 ```json
 {
@@ -111,156 +119,86 @@ Update `AppServer/appsettings.json`:
 }
 ```
 
-**Important**: Replace `your-client-id-here` and `your-tenant-id-here` with actual values.
+**Important**: Replace `your-client-id-here` with your Application (client) ID. For single-tenant, also replace `your-tenant-id-here` with your Directory (tenant) ID.
 
 ### Frontend Configuration
 
-#### Development Environment
-
-Update `ReactApp/.env.development`:
+Update `ReactApp/.env`:
 
 ```env
 VITE_AZURE_CLIENT_ID=your-client-id-here
-VITE_AZURE_TENANT_ID=your-tenant-id-here
-VITE_AZURE_SCOPES=User.Read
+VITE_AZURE_TENANT_ID=common
+VITE_AZURE_SCOPES=openid profile offline_access email
 ```
 
-#### Production Environment
+**Important**:
 
-Update `ReactApp/.env.production`:
-
-```env
-VITE_AZURE_CLIENT_ID=your-client-id-here
-VITE_AZURE_TENANT_ID=your-tenant-id-here
-VITE_AZURE_SCOPES=User.Read
-```
-
-**Note**: Use different client IDs if you created separate app registrations for each environment.
+- Replace `your-client-id-here` with your Application (client) ID
+- For multi-tenant apps, use `common` as the tenant ID
+- For single-tenant apps, replace `common` with your Directory (tenant) ID
 
 ## Multi-Environment Setup
 
-You have two options for managing multiple environments:
+Add redirect URIs for all environments to your single app registration:
 
-### Option A: Single App Registration
+1. Go to **Authentication** in your app registration
+2. Under **Single-page application**, add redirect URIs for each environment:
+   - Development: `https://localhost:44323/oauth/callback` and `https://localhost:44323/oauth/logout`
+   - Production: `https://your-app.azurewebsites.net/oauth/callback` and `https://your-app.azurewebsites.net/oauth/logout`
+3. If developers need to work locally with a production backend, also add:
+   - `http://localhost:5173/oauth/callback` and `http://localhost:5173/oauth/logout`
+4. Click **Save**
 
-- Use one app registration for all environments
-- Add multiple redirect URIs for each environment
-- Use the same client ID in all environment configurations
-- **Pros**: Simpler to manage
-- **Cons**: Less isolation between environments
+This approach uses a single app registration for all environments, simplifying management while maintaining security.
 
-### Option B: Separate App Registrations (Recommended)
+## Security Considerations
 
-- Create separate app registrations for each environment
-- Name them clearly: "MyApp - Dev", "MyApp - Prod"
-- Configure environment-specific redirect URIs
-- Use different client IDs in each environment
-- **Pros**: Better isolation, clearer audit trails
-- **Cons**: More registrations to manage
+### Authentication Flow
 
-## User Roles and Permissions
+This template uses the **Authorization Code Flow with PKCE** (Proof Key for Code Exchange) for authentication, implemented via the [@shane32/msoauth](https://github.com/Shane32/msoauth) library. When a user logs in, they are redirected to Microsoft's login page, and upon successful authentication, redirected back to the application with an authorization code. The application then exchanges this code for access tokens and refresh tokens using a secure fetch request.
 
-(To be implemented based on your application's needs)
+**Key characteristics of this flow:**
 
-### Assigning Roles
+- **No iframes or hidden windows**: All authentication happens through full-page redirects, providing better security and user experience
+- **Refresh token storage**: Refresh tokens are stored in browser local storage and used to obtain new access tokens when they expire, eliminating the need for repeated user logins
+- **PKCE protection**: The authorization code exchange is protected by PKCE, preventing interception attacks even if the authorization code is compromised
 
-1. Navigate to your app registration
-2. Go to **App roles**
-3. Click **Create app role**
-4. Define roles (e.g., Admin, User, ReadOnly)
-5. Assign users to roles through Enterprise Applications
+**Security implications:**
 
-### Implementing Role-Based Access
+Storing refresh tokens in local storage provides a balance between security and user experience. While local storage is accessible to JavaScript (including any XSS vulnerabilities), this approach:
 
-Update your application code to check user roles:
+- Eliminates the need for silent authentication flows using hidden iframes, which have been increasingly restricted by browsers
+- Provides a seamless user experience with automatic token refresh
+- Works reliably across all modern browsers without third-party cookie dependencies
+- Keeps the server as a completely stateless REST API, supporting microservice-type architectures where the API can be independently scaled or deployed
+- Enables response compression for improved performance (response compression is enabled in this template and should be disabled when using cookie-based authentication due to BREACH attack vulnerabilities)
+- Is explicitly supported by Microsoft's authentication libraries and recommended for single-page applications
 
-```csharp
-// Example: Check if user has admin role
-if (User.IsInRole("Admin"))
-{
-    // Allow admin action
-}
-```
+**Important compatibility note:** While Microsoft supports providing refresh tokens in this flow, **Google does not support refresh tokens for browser-based applications** using the Authorization Code Flow with PKCE. If you need to support Google authentication, you would need to implement a different authentication strategy or accept that users will need to re-authenticate more frequently.
 
-## Testing Authentication
+### Industry Best Practices vs. This Template
 
-1. Start your application (both backend and frontend)
-2. Navigate to the application URL
-3. Click the login button
-4. You should be redirected to Microsoft's login page
-5. Sign in with your Microsoft account
-6. After authentication, you should be redirected back to your application
-7. Verify you're logged in and can access protected resources
+Current industry best practices recommend using a **Backend-for-Frontend (BFF) pattern** where authentication tokens are stored in secure, HTTP-only cookies managed by a backend service, rather than in browser local storage. This approach provides stronger security by:
 
-### Verify Token Claims
+- Keeping tokens inaccessible to JavaScript, eliminating XSS-based token theft
+- Using HTTP-only, secure, SameSite cookies that browsers handle automatically
+- Moving token refresh logic to the backend where it can be more securely managed
+- Providing better protection against common web vulnerabilities
 
-1. Open browser developer tools (F12)
-2. Go to **Application** > **Local Storage**
-3. Look for authentication tokens
-4. Verify the token contains expected claims (name, email, etc.)
+**To implement the BFF pattern in this template**, you would need to:
 
-## Security Best Practices
+1. Create backend API endpoints for login, logout, and token refresh operations
+2. Configure the backend to handle OAuth redirects and token exchanges server-side
+3. Store tokens in server-side session storage (e.g., Redis, database) with session IDs in HTTP-only cookies
+4. Modify the frontend to call backend authentication endpoints instead of directly interacting with Microsoft's OAuth endpoints
+5. Update the GraphQL client to rely on cookies for authentication rather than Authorization headers
+6. Implement CSRF protection for state-changing operations
 
-### Tenant Configuration
-
-- **Single-tenant apps**: Set `ValidateIssuer` to `true` and specify your tenant ID in the Authority URL
-- **Multi-tenant apps**: Use `https://login.microsoftonline.com/common` as Authority
-
-### Scope Limitation
-
-- Only request minimum required scopes
-- `User.Read` is typically sufficient for basic profile information
-- Add additional scopes only when needed
-
-### Redirect URI Validation
-
-- Ensure redirect URIs are exact matches (including trailing slashes)
-- Use HTTPS in production
-- Don't use wildcards in redirect URIs
-
-### Token Validation
-
-- Backend validates tokens using `ValidAudience` setting
-- Ensure audience matches your client ID
-- Verify issuer matches your tenant
-
-## Troubleshooting
-
-### CORS Errors
-
-- Verify backend CORS policy allows your frontend domain
-- Check that the frontend URL is correctly configured
-
-### Invalid Redirect URI
-
-- Verify redirect URI in app registration matches exactly
-- Check for trailing slashes
-- Ensure protocol (http/https) matches
-
-### Token Validation Errors
-
-- Verify `ValidAudience` matches your client ID
-- Check that Authority URL includes correct tenant ID
-- Ensure `ValidateIssuer` is set appropriately
-
-### Missing Claims
-
-- Verify optional claims are configured in Token Configuration
-- Check that Microsoft Graph permissions were granted
-- Ensure user has the required profile information
-
-### Tenant Issues
-
-- For single-tenant apps, verify tenant ID is correct
-- For multi-tenant apps, use `/common` endpoint
-- Check that supported account types match your configuration
+While the BFF pattern provides enhanced security, this template prioritizes simplicity and rapid deployment for medium-sized applications where the development team can implement appropriate XSS protections (Content Security Policy, input sanitization, etc.). For applications with higher security requirements or regulatory compliance needs, implementing the BFF pattern is strongly recommended.
 
 ## Additional Resources
 
+- [@shane32/msoauth Library](https://github.com/Shane32/msoauth) - The OAuth library used in this template
 - [Microsoft Identity Platform Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/)
 - [MSAL.js Documentation](https://github.com/AzureAD/microsoft-authentication-library-for-js)
 - [Azure AD App Registration Best Practices](https://docs.microsoft.com/en-us/azure/active-directory/develop/security-best-practices-for-app-registration)
-
-## Next Steps
-
-Continue to [Azure Web App Setup](azure-webapp-setup.md) to create and configure your hosting environment.
