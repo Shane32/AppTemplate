@@ -164,35 +164,47 @@ This template includes several important operational behaviors that affect how t
 
 These and other operational principles are documented in detail in the [Operational Principles](docs/operational-principles.md) guide. **Review this document before working with the template** to understand how the application behaves and what alternatives are available if you need different behavior.
 
-## 🗄️ Database Setup
+## 🚀 Production Configuration
+
+This section covers the Azure resources and configuration required for production deployments. All production deployments use passwordless authentication via managed identities.
+
+### Database
 
 The template uses **SQL Server LocalDB** for local development (automatically installed with Visual Studio) and **SQLite** for testing. The database is automatically created on first run using Entity Framework migrations.
 
 For production deployments, the template is designed for **Azure SQL Database** with passwordless authentication using managed identities. This eliminates the need to store database passwords in configuration - your Azure credentials are used in development, and the web app's managed identity is used in production.
 
-For production database configuration, see the [Azure Database Setup](docs/azure-database-setup.md) guide, or the [CI/CD Configuration](#-cicd-configuration) section below for a complete setup guide including database, authentication, and deployment configuration.
+For production database configuration, see the [Azure Database Setup](docs/azure-database-setup.md) guide.
 
 Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by both development and production environments.
 
-## 🔐 Azure App Registration (Required for Production)
+### Azure App Registration
 
 The template includes a pre-configured Azure AD client ID that **only works with localhost** (`https://localhost:44323/oauth/callback`). This is for local development convenience only and **cannot be used in any deployed environment**.
 
 Before deploying to development, staging, or production, you must create your own Azure App Registration with redirect URIs configured for your deployment URLs. Each environment should have its own app registration (or at minimum, its own redirect URI in a shared registration).
 
-For complete authentication setup instructions, see the [CI/CD Configuration](#-cicd-configuration) section below, which includes authentication configuration as part of the deployment setup process.
+For complete authentication setup instructions, see the [Application Authentication Setup](docs/azure-authentication-setup.md) guide.
 
-## 🚢 CI/CD Configuration
+### Azure Key Vault
 
-This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment to Azure. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
+Azure Key Vault provides secure storage for application secrets, connection strings, and other sensitive configuration values. The template is configured to automatically load secrets from Key Vault in both development and production environments.
 
-### Quick Start
+Key Vault setup is optional but recommended for production deployments. When configured, secrets stored in Key Vault will override values in appsettings.json, allowing you to keep sensitive information out of your codebase.
 
-For complete setup instructions, see the [CI/CD Setup Guide](docs/cicd-setup.md).
+For Key Vault configuration instructions, see the [Azure Key Vault Setup](docs/azure-keyvault-setup.md) guide.
 
-### Setup Overview
+## 🚢 Production Deployment
 
-Follow these steps in order to set up production deployment:
+This section covers automated deployment to Azure App Service using GitHub Actions.
+
+### Azure App Service (CI/CD)
+
+This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment to Azure App Service. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
+
+**Quick Start**: For complete setup instructions, see the [CI/CD Setup Guide](docs/cicd-setup.md).
+
+**Setup Overview**: Follow these steps in order to set up production deployment:
 
 1. **[Azure Database Setup](docs/azure-database-setup.md)** - Create and configure Azure SQL Database
 2. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Create and configure Azure AD app registration
@@ -200,17 +212,13 @@ Follow these steps in order to set up production deployment:
 4. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
 5. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
 
-### What's Included
-
-The template includes workflows for:
+**What's Included**: The template includes workflows for:
 
 - **Pull Requests**: Automatic build and test validation
 - **Development**: Automatic deployment to development environment on merge to `master`
 - **Production**: Manual deployment to production on release
 
-### Environment Requirements
-
-Configure one or both environments as needed. **Development** deploys automatically on push to `master`. **Production** deploys only on GitHub releases. Each environment requires its own Azure resources and GitHub configuration.
+**Environment Requirements**: Configure one or both environments as needed. **Development** deploys automatically on push to `master`. **Production** deploys only on GitHub releases. Each environment requires its own Azure resources and GitHub configuration.
 
 ## 🔒 Security Considerations
 
