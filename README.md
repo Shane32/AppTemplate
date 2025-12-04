@@ -159,7 +159,7 @@ To work on the frontend using a production backend:
 This template includes several important operational behaviors that affect how the application functions. For example:
 
 - **Database migrations run automatically on startup** - Schema changes deploy with your code without manual intervention
-- **Dependency injection is validated at startup** - Configuration errors are caught before the application serves requests
+- **Single Deployment Artifact** - Backend and frontend deploy together as one cohesive application
 - **Users are auto-provisioned on first login** - No separate registration flow is needed
 
 These and other operational principles are documented in detail in the [Operational Principles](docs/operational-principles.md) guide. **Review this document before working with the template** to understand how the application behaves and what alternatives are available if you need different behavior.
@@ -170,9 +170,9 @@ The template uses **SQL Server LocalDB** for local development (automatically in
 
 For production deployments, the template is designed for **Azure SQL Database** with passwordless authentication using managed identities. This eliminates the need to store database passwords in configuration - your Azure credentials are used in development, and the web app's managed identity is used in production.
 
-For production database configuration, see the [CI/CD Configuration](#-cicd-configuration) section below, which provides a complete setup guide including database, authentication, and deployment configuration.
+For production database configuration, see the [Azure Database Setup](docs/azure-database-setup.md) guide, or the [CI/CD Configuration](#-cicd-configuration) section below for a complete setup guide including database, authentication, and deployment configuration.
 
-Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations.
+Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by both development and production environments.
 
 ## 🔐 Azure App Registration (Required for Production)
 

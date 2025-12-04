@@ -148,7 +148,7 @@ The template is configured to deploy both the backend and frontend as a single a
 **Alternative:** To avoid this issue, deploy the backend and frontend separately:
 
 - Deploy the backend API to Azure App Service or Azure Container Apps
-- Deploy the SPA to Azure Blob Storage with Azure CDN, using versioned paths (e.g., `/v1.2.3/`) that don't replace old files
+- Deploy the SPA to Azure Blob Storage with Azure CDN, using content-addressed filenames (e.g., `main.a3f2b1c9.js`) where file hashes are embedded in the filename, ensuring old files remain accessible indefinitely
 - Configure CORS on the backend to allow requests from the CDN origin
 - This allows old application versions to continue functioning until users refresh their browser, providing zero-downtime deployments (assuming persisted queries are also handled via a shared store)
 - **Note:** The included GitHub Actions workflows already support this deployment pattern - they can push the SPA to blob storage instead of wwwroot by configuring the appropriate options. See [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for more details on configuration options.
