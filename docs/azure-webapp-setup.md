@@ -34,104 +34,72 @@ After the web app is created:
    - Under **System assigned**, toggle to **On**
    - Click **Save**
 
-## Create User Assigned Managed Identity
-
-The managed identity is used for GitHub Actions to deploy to Azure.
-
-1. In Azure Portal, search for **Managed Identities**
-2. Click **Create**
-3. Configure the identity:
-   - **Subscription**: Same as the web app
-   - **Resource Group**: Same as the web app
-   - **Region**: Same as the web app
-   - **Name**: Use the web app name with `-identity` appended (e.g., `myapp-dev-identity`)
-4. Click **Review + create**, then **Create**
-
-### Configure Federated Credentials
-
-1. Navigate to the managed identity you just created
-2. Go to **Settings** > **Federated credentials**
-3. Click **Add credential**
-4. Configure the credential:
-   - **Federated credential scenario**: GitHub Actions deploying Azure resources
-   - **Organization**: Your GitHub organization or username
-   - **Repository**: Your repository name
-   - **Entity type**: Environment
-   - **Environment name**: `Development` or `Production` (must match GitHub environment name)
-   - **Name**: Use the identity name with `-cred` appended (e.g., `myapp-dev-identity-cred`)
-5. Click **Add**
-
-### Note Important IDs
-
-From the managed identity **Overview** page, note:
-
-- **Client ID** - needed for GitHub Actions configuration
-- **Subscription ID** - needed for GitHub Actions configuration
-
-You'll also need your **Tenant ID**, which can be found:
-
-1. Go to **Microsoft Entra ID** in Azure Portal
-2. The **Tenant ID** is shown on the Overview page
-
-## Assign Deployment Permissions
-
-The managed identity needs permission to deploy to the web app.
-
-1. Navigate to your web app
-2. Go to **Access control (IAM)**
-3. Click **Add** > **Add role assignment**
-4. Configure the role:
-   - **Role**: Website Contributor
-   - **Assign access to**: Managed identity
-   - Click **Select members**
-   - **Subscription**: Select the subscription where the managed identity was created
-   - **Managed identity**: User-assigned managed identity
-   - Select the managed identity you created above
-5. Click **Review + assign**
-
 ## Grant Database Access to Web App
 
-The web app's managed identity needs permission to access the database for production deployment.
-
-### Prerequisites
-
-- Azure SQL Database created (see [Azure Database Setup](azure-database-setup.md))
-- Web app created with system-assigned managed identity enabled (completed above)
-
-### Grant Permissions
+The web app's managed identity needs permission to access the database. See [Azure Database Setup](azure-database-setup.md) for creating the database.
 
 1. Navigate to your SQL Database in Azure Portal
-2. Click **Query editor** (or use SQL Server Management Studio)
-3. Authenticate using Microsoft Entra authentication
-4. Execute the following SQL commands, replacing `myapp-dev` with your web app name:
+2. Click **Query editor** and authenticate using Microsoft Entra authentication
+3. Execute the following SQL, replacing `myapp-dev` with your web app name:
 
 ```sql
--- Create user for the web app's managed identity
 CREATE USER [myapp-dev] FROM EXTERNAL PROVIDER;
-
--- Grant db_owner role (full access)
 ALTER ROLE db_owner ADD MEMBER [myapp-dev];
 ```
 
-### Configure Connection String in Web App
+The `db_owner` role is required to allow automatic migration of the database at application startup.
+
+## Grant Key Vault Access to Web App (Optional)
+
+If using Azure Key Vault, grant the web app access to read secrets. See [Azure Key Vault Setup](azure-keyvault-setup.md) for creating the key vault.
+
+1. Navigate to your key vault in Azure Portal
+2. Go to **Access control (IAM)** > **Add** > **Add role assignment**
+3. Select **Key Vault Secrets Officer** role
+4. Assign to **Managed identity** > **App Service** > select your web app
+5. Click **Review + assign**
+
+## Configure Application Settings and Secrets
+
+Configure environment-specific settings and secrets for your web app. You can store these in Azure Key Vault (recommended) or directly as application settings.
+
+### Using Key Vault (Recommended)
+
+If you're using Azure Key Vault and your production key vault differs from development:
 
 1. Navigate to your web app in Azure Portal
 2. Go to **Configuration** > **Application settings**
-3. Add or update the connection string:
-   - **Name**: `ConnectionStrings__DefaultConnection`
-   - **Value**: `Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;`
-   - **Type**: Custom
-4. Click **Save**
+3. Click **New application setting**
+4. Add the key vault name:
+   - **Name**: `KeyVaultName`
+   - **Value**: `myapp-prod` (just the name, not the full URI)
+5. Click **OK**, then **Save**
 
-**Note:** Replace `your-server` and `your-database` with your actual SQL Server and database names.
+Once configured, store all environment-specific secrets in the key vault:
+
+- Connection strings (e.g., `ConnectionStrings--AppDbContext`)
+- API keys
+- Authentication settings
+- Any other sensitive configuration
+
+See [Azure Key Vault Setup](azure-keyvault-setup.md) for details on adding secrets to the key vault.
+
+### Without Key Vault
+
+If you're not using Key Vault, configure any settings that differ from the development environment directly in the web app:
+
+1. Navigate to your web app in Azure Portal
+2. Go to **Configuration** > **Application settings**
+3. Click **New application setting**
+4. Add each setting using double underscores (`__`) to represent configuration hierarchy, such as:
+   - **Name**: `ConnectionStrings__AppDbContext`
+   - **Value**: `Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;`
+5. Click **OK**, then **Save**
+
+**Note:** Only configure settings that differ from your development environment (configured in `appsettings.json`).
 
 ## Important Notes
 
-- The managed identity must be in the same subscription as the web app for deployment to succeed
-- Create separate managed identities for development and production if they're in different subscriptions
-- Keep the Client ID, Subscription ID, and Tenant ID secure - you'll need them for GitHub Actions setup
-- The web app's system-assigned managed identity must be enabled before granting database permissions
-
-## Next Steps
-
-Continue to [GitHub Actions Configuration](github-actions-setup.md) to set up automated deployments.
+- The web app's system-assigned managed identity must be enabled before granting database or Key Vault permissions
+- Only configure application settings that differ from your development environment
+- Key Vault is recommended for storing sensitive configuration in production

@@ -15,37 +15,26 @@ Using Key Vault is optional but recommended for production environments.
 
 ## Prerequisites
 
-- Azure subscription (same as your web app)
+- Azure subscription
 - Resource group created
-- Web app created with system-assigned managed identity enabled
 
 ## Create Azure Key Vault
 
 1. Navigate to the [Azure Portal](https://portal.azure.com)
 2. Click **Create a resource** > **Key Vault**
 3. Configure the key vault:
-   - **Subscription**: Same as the web app
-   - **Resource Group**: Same as the web app
-   - **Key vault name**: Same as your web app name (e.g., `myapp-dev` or `myapp-prod`)
-   - **Region**: East US 2 (or same as your web app)
+   - **Subscription**: Select your subscription
+   - **Resource Group**: Select or create a resource group
+   - **Key vault name**: Choose a unique name (e.g., `myapp-dev` or `myapp-prod`). If you plan to use this with an Azure Web App, use the same name as your web app for consistency.
+   - **Region**: East US 2 (or your preferred region)
    - **Pricing tier**: Standard
 4. Click **Review + create**, then **Create**
 
-## Configure Access Policies
+## Access Control
 
-The web app needs permission to read secrets from the key vault.
+Access to the key vault is granted through Azure role-based access control (RBAC). Applications and users that need to read secrets should be assigned the **Key Vault Secrets Officer** role.
 
-1. Navigate to your key vault in Azure Portal
-2. Go to **Access control (IAM)**
-3. Click **Add** > **Add role assignment**
-4. Configure the role:
-   - **Role**: Key Vault Secrets Officer
-   - **Assign access to**: Managed identity
-   - Click **Select members**
-   - **Subscription**: Same as the web app
-   - **Managed identity**: App Service
-   - Select your web app
-5. Click **Review + assign**
+For instructions on granting your Azure Web App access to the key vault, see the [Azure Web App Setup Guide](azure-webapp-setup.md).
 
 ## Add Secrets to Key Vault
 
@@ -74,64 +63,110 @@ Use double dashes (`--`) to represent configuration hierarchy:
 
 ## Configure Application to Use Key Vault
 
-### Update appsettings.json
+The application is configured to use Key Vault through the `KeyVaultName` setting in [`AppServer/appsettings.json`](../AppServer/appsettings.json).
 
-Add the Key Vault configuration to your `AppServer/appsettings.json`:
+### Default Configuration
+
+By default, `KeyVaultName` is set to an empty string, which means Key Vault is not used:
 
 ```json
 {
-  "KeyVault": {
-    "VaultUri": "https://myapp-dev.vault.azure.net/"
-  }
+  "KeyVaultName": ""
 }
 ```
 
 ### Environment-Specific Configuration
 
-For different environments, override the Key Vault URI using environment variables:
+If you have separate key vaults for different environments (e.g., development and production), configure the key vault name using environment variables:
 
 1. Navigate to your web app in Azure Portal
 2. Go to **Configuration** > **Application settings**
 3. Add a new setting:
-   - **Name**: `KeyVault__VaultUri`
-   - **Value**: `https://myapp-prod.vault.azure.net/` (for production)
+   - **Name**: `KeyVaultName`
+   - **Value**: `myapp-prod` (just the name, not the full URI)
 4. Click **Save**
 
-This allows you to use the development key vault locally and production key vault in Azure.
+The application will automatically construct the full URI as `https://{KeyVaultName}.vault.azure.net/`.
 
-## Local Development
+### Single Key Vault for All Environments
 
-For local development, you can:
-
-### Option 1: Use User Secrets
-
-Store secrets locally using .NET user secrets:
-
-```bash
-cd AppServer
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "your-connection-string"
-```
-
-### Option 2: Use Local Key Vault
-
-If you have Azure CLI installed and are authenticated:
-
-1. Ensure you have access to the development key vault
-2. The application will automatically use your Azure credentials to access the key vault
-
-### Option 3: Use appsettings.Development.json
-
-For non-sensitive development values, use `appsettings.Development.json`:
+If you use the same key vault for all environments, you can set the `KeyVaultName` directly in [`appsettings.json`](../AppServer/appsettings.json):
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=MyApp;Trusted_Connection=True;"
-  }
+  "KeyVaultName": "myapp-keyvault"
 }
 ```
 
-**Note**: Never commit sensitive values to source control.
+In this case, no additional configuration is needed in Azure.
+
+## Local Development
+
+For local development, you have several options for configuring Key Vault access:
+
+### Option 1: Configure Key Vault Name via User Secrets (Recommended)
+
+Store the key vault name locally using .NET user secrets:
+
+**Using Visual Studio:**
+
+1. In Solution Explorer, right-click on the **AppServer** project
+2. Select **Manage User Secrets**
+3. Add the key vault name to the `secrets.json` file that opens:
+
+   ```json
+   {
+     "KeyVaultName": "myapp-dev"
+   }
+   ```
+
+4. Save the file
+
+**Using Command Line:**
+
+```bash
+cd AppServer
+dotnet user-secrets set "KeyVaultName" "myapp-dev"
+```
+
+Once configured, the application will automatically use your Azure credentials (Visual Studio or Azure CLI) to access the key vault.
+
+### Option 2: Use appsettings.Local.json
+
+Create an `appsettings.Local.json` file in the AppServer directory (this file is git-ignored):
+
+```json
+{
+  "KeyVaultName": "myapp-dev"
+}
+```
+
+### Option 3: Don't Use Key Vault Locally
+
+If you prefer not to use Key Vault for local development, leave `KeyVaultName` empty and store secrets using user secrets:
+
+**Using Visual Studio:**
+
+1. Right-click on the **AppServer** project
+2. Select **Manage User Secrets**
+3. Add your secrets:
+
+   ```json
+   {
+     "ConnectionStrings": {
+       "AppDbContext": "Server=(localdb)\\mssqllocaldb;Database=MyApp;Trusted_Connection=True;"
+     }
+   }
+   ```
+
+**Using Command Line:**
+
+```bash
+cd AppServer
+dotnet user-secrets set "ConnectionStrings:AppDbContext" "your-connection-string"
+```
+
+**Note**: Never commit sensitive values to source control. User secrets and `appsettings.Local.json` are automatically excluded from git.
 
 ## Managing Secrets
 
@@ -165,27 +200,3 @@ For non-sensitive development values, use `appsettings.Development.json`:
 - **Audit Logging**: Enable diagnostic logging for key vault access
 - **Secret Rotation**: Regularly rotate sensitive secrets
 - **Access Reviews**: Periodically review who has access to your key vault
-
-## Troubleshooting
-
-### Application Can't Access Key Vault
-
-- Verify the web app's managed identity has Key Vault Secrets Officer role
-- Check the Key Vault URI is correct in configuration
-- Ensure the key vault allows access from Azure services
-
-### Secret Not Found
-
-- Verify the secret name matches exactly (including casing)
-- Check the secret exists in the correct key vault
-- Ensure you're using the correct naming convention (double dashes)
-
-### Local Development Issues
-
-- Ensure you're authenticated with Azure CLI: `az login`
-- Verify you have permission to access the key vault
-- Check the Key Vault URI in your local configuration
-
-## Next Steps
-
-Your CI/CD setup is now complete! See the [CI/CD Setup Guide](cicd-setup.md) for an overview of all components.
