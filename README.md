@@ -16,25 +16,30 @@ This repository provides a production-ready template for building full-stack app
 
 ### Backend Stack
 
-- .NET 10.0
-- Entity Framework Core
-- GraphQL.NET
-- SQL Server
+- [.NET 10.0](https://dotnet.microsoft.com/)
+- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
+- [AutoMapper](https://automapper.org/)
+- [GraphQL.NET](https://graphql-dotnet.github.io/)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server)
 
 ### Frontend Stack
 
-- React 18
-- TypeScript
-- Vite
-- GraphQL Code Generator
-- Microsoft Entra ID (Azure AD) Authentication
+- [React 18](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [GraphQL Code Generator](https://the-guild.dev/graphql/codegen)
+- [@shane32/graphql](https://www.github.com/shane32/graphql) (GraphQL client)
+- [@shane32/msoauth](https://www.github.com/shane32/msoauth) (Microsoft OAuth)
+- [GraphiQL](https://github.com/graphql/graphiql) (lazy-loaded development tool)
 
 ### Development Environment
 
-- Visual Studio 2026 (for backend)
-- VS Code (for frontend)
-- Node.js 22
-- npm 10
+- [Visual Studio 2026](https://visualstudio.microsoft.com/) (for backend)
+- [VS Code](https://code.visualstudio.com/) (for frontend)
+- [Node.js 22](https://nodejs.org/)
+- [npm 10](https://www.npmjs.com/)
+
+See the [Design Choices](docs/design-choices.md) document for detailed rationale behind these technology selections.
 
 ## 🎯 Design Principles / Who It's For
 
@@ -154,6 +159,16 @@ To work on the frontend using a production backend:
    - The application will be available at http://localhost:5173
    - The `.env.development.local` file will be ignored when committing to GitHub
 
+## 📚 Design Choices
+
+The [Design Choices](docs/design-choices.md) document explains the technology stack selections for this template, including:
+
+- **Frontend Stack**: React, Vite, TypeScript, GraphQL Code Generation, and why @shane32/graphql was chosen over Apollo Client and @shane32/msoauth over MSAL.js
+- **Backend Stack**: ASP.NET Core, Entity Framework Core, AutoMapper, GraphQL.NET, and the Shane32 NuGet packages
+- **Architecture Decisions**: Why we use client-side rendering instead of SSR, and other key architectural choices
+
+**Review this document to understand the rationale behind the technology selections** and when you might want to make different choices for your specific use case.
+
 ## ⚙️ Operational Principles
 
 This template includes several important operational behaviors that affect how the application functions. For example:
@@ -196,7 +211,7 @@ For production deployments, the template is designed for **Azure SQL Database** 
 
 For production database configuration, see the [Azure Database Setup](docs/azure-database-setup.md) guide.
 
-Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by both development and production environments.
+Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by the appropriate environment.
 
 ### Azure Web App
 
