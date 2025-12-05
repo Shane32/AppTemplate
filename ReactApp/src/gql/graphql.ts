@@ -18,6 +18,12 @@ export type Scalars = {
   DateTimeOffset: { input: string; output: string; }
 };
 
+export type AddPostInput = {
+  content: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  userId: Scalars['Int']['input'];
+};
+
 export type Comment = {
   content: Scalars['String']['output'];
   createdAt: Scalars['DateTimeOffset']['output'];
@@ -82,9 +88,7 @@ export type PostMutation = {
 
 
 export type PostMutationAddArgs = {
-  content: Scalars['String']['input'];
-  title: Scalars['String']['input'];
-  userId: Scalars['ID']['input'];
+  input: AddPostInput;
 };
 
 
@@ -94,9 +98,8 @@ export type PostMutationDeleteArgs = {
 
 
 export type PostMutationUpdateArgs = {
-  content: Scalars['String']['input'];
   id: Scalars['ID']['input'];
-  title: Scalars['String']['input'];
+  input: UpdatePostInput;
 };
 
 export type Query = {
@@ -145,6 +148,11 @@ export enum Role {
   Operator = 'OPERATOR',
   SysAdmin = 'SYS_ADMIN'
 }
+
+export type UpdatePostInput = {
+  content: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
 
 export type User = {
   email?: Maybe<Scalars['String']['output']>;

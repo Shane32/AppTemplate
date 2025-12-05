@@ -20,7 +20,7 @@ type Documents = {
     "\n  query TestQuery2 {\n    comment(id: \"1\") {\n      id\n    }\n  }\n": typeof types.TestQuery2Document,
     "\n  query TestQuery3 {\n    post(id: \"1\") {\n      ...Fragment1\n    }\n  }\n  fragment Fragment1 on Post {\n    id\n    title\n    content\n    userId\n  }\n": typeof types.TestQuery3Document,
     "\n  fragment Fragment2 on Post {\n    id\n    title\n    content\n    userId\n  }\n": typeof types.Fragment2FragmentDoc,
-    "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n\n  \n": typeof types.TestQuery4Document,
+    "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n": typeof types.TestQuery4Document,
 };
 const documents: Documents = {
     "\n  query Me {\n    me {\n      id\n      name\n      firstName\n      lastName\n      roles\n    }\n  }\n": types.MeDocument,
@@ -28,7 +28,7 @@ const documents: Documents = {
     "\n  query TestQuery2 {\n    comment(id: \"1\") {\n      id\n    }\n  }\n": types.TestQuery2Document,
     "\n  query TestQuery3 {\n    post(id: \"1\") {\n      ...Fragment1\n    }\n  }\n  fragment Fragment1 on Post {\n    id\n    title\n    content\n    userId\n  }\n": types.TestQuery3Document,
     "\n  fragment Fragment2 on Post {\n    id\n    title\n    content\n    userId\n  }\n": types.Fragment2FragmentDoc,
-    "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n\n  \n": types.TestQuery4Document,
+    "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n": types.TestQuery4Document,
 };
 
 /**
@@ -54,7 +54,7 @@ export function graphql(source: "\n  fragment Fragment2 on Post {\n    id\n    t
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n\n  \n"): typeof import('./graphql').TestQuery4Document;
+export function graphql(source: "\n  query TestQuery4 {\n    posts {\n      edges {\n        node {\n          ...Fragment2\n        }\n      }\n    }\n  }\n"): typeof import('./graphql').TestQuery4Document;
 
 
 export function graphql(source: string) {

@@ -14,7 +14,7 @@ gql`
   }
 `;
 
-const fragment2 = gql`
+gql`
   fragment Fragment2 on Post {
     id
     title
@@ -33,6 +33,4 @@ gql`
       }
     }
   }
-
-  ${fragment2}
 `;
