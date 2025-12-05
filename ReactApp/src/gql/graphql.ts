@@ -246,58 +246,8 @@ export const Fragment2FragmentDoc = new TypedDocumentString(`
   userId
 }
     `, {"fragmentName":"Fragment2"}) as unknown as TypedDocumentString<Fragment2Fragment, unknown>;
-export const MeDocument = new TypedDocumentString(`
-    query Me {
-  me {
-    id
-    name
-    firstName
-    lastName
-    roles
-  }
-}
-    `) as unknown as TypedDocumentString<MeQuery, MeQueryVariables>;
-export const TestQuery1Document = new TypedDocumentString(`
-    query TestQuery1 {
-  me {
-    id
-    name
-    email
-  }
-}
-    `) as unknown as TypedDocumentString<TestQuery1Query, TestQuery1QueryVariables>;
-export const TestQuery2Document = new TypedDocumentString(`
-    query TestQuery2 {
-  comment(id: "1") {
-    id
-  }
-}
-    `) as unknown as TypedDocumentString<TestQuery2Query, TestQuery2QueryVariables>;
-export const TestQuery3Document = new TypedDocumentString(`
-    query TestQuery3 {
-  post(id: "1") {
-    ...Fragment1
-  }
-}
-    fragment Fragment1 on Post {
-  id
-  title
-  content
-  userId
-}`) as unknown as TypedDocumentString<TestQuery3Query, TestQuery3QueryVariables>;
-export const TestQuery4Document = new TypedDocumentString(`
-    query TestQuery4 {
-  posts {
-    edges {
-      node {
-        ...Fragment2
-      }
-    }
-  }
-}
-    fragment Fragment2 on Post {
-  id
-  title
-  content
-  userId
-}`) as unknown as TypedDocumentString<TestQuery4Query, TestQuery4QueryVariables>;
+export const MeDocument = {"__meta__":{"hash":"Me_i8Eh1RVt"}} as unknown as TypedDocumentString<MeQuery, MeQueryVariables>;
+export const TestQuery1Document = {"__meta__":{"hash":"TestQuery1_iDZ2ixhE"}} as unknown as TypedDocumentString<TestQuery1Query, TestQuery1QueryVariables>;
+export const TestQuery2Document = {"__meta__":{"hash":"TestQuery2_pysM48k+"}} as unknown as TypedDocumentString<TestQuery2Query, TestQuery2QueryVariables>;
+export const TestQuery3Document = {"__meta__":{"hash":"TestQuery3_Q2hGzi+D"}} as unknown as TypedDocumentString<TestQuery3Query, TestQuery3QueryVariables>;
+export const TestQuery4Document = {"__meta__":{"hash":"TestQuery4_XTpPqEkU"}} as unknown as TypedDocumentString<TestQuery4Query, TestQuery4QueryVariables>;
