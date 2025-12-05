@@ -6,13 +6,13 @@ This document outlines the key operational principles and design decisions that 
 
 ### 1. Automatic Database Migration on Startup
 
-The application automatically runs pending EF Core migrations during startup via [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L172), ensuring the database schema is always current without manual intervention. This means:
+The application automatically runs pending EF Core migrations during startup via [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L174), ensuring the database schema is always current without manual intervention. This means:
 
 - No need to manually run migration commands in production
 - Database schema updates deploy automatically with application updates
 - Failed migrations will prevent application startup, ensuring schema consistency
 
-**Alternative:** To disable automatic migrations, remove the migration code from [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L184) and run migrations manually via deployment scripts or CI/CD pipelines.
+**Alternative:** To disable automatic migrations, remove the migration code from [`RunInitializationTestsAsync()`](../AppServer/Startup.cs#L186) and run migrations manually via deployment scripts or CI/CD pipelines.
 
 ### 2. Dependency Injection Validation Always Enabled
 
@@ -147,11 +147,13 @@ The template is configured to deploy both the backend and frontend as a single a
 
 **Alternative:** To avoid this issue, deploy the backend and frontend separately:
 
-- Deploy the backend API to Azure App Service or Azure Container Apps
-- Deploy the SPA to Azure Blob Storage with Azure CDN, using content-addressed filenames (e.g., `main.a3f2b1c9.js`) where file hashes are embedded in the filename, ensuring old files remain accessible indefinitely
-- Configure CORS on the backend to allow requests from the CDN origin
-- This allows old application versions to continue functioning until users refresh their browser, providing zero-downtime deployments (assuming persisted queries are also handled via a shared store)
-- **Note:** The included GitHub Actions workflows already support this deployment pattern - they can push the SPA to blob storage instead of wwwroot by configuring the appropriate options. See [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for more details on configuration options.
+1. Deploy the backend API to Azure App Service or Azure Container Apps
+2. Deploy the SPA to Azure Blob Storage with Azure CDN, using content-addressed filenames (e.g., `main.a3f2b1c9.js`) where file hashes are embedded in the filename, ensuring old files remain accessible indefinitely
+3. Configure CORS on the backend to allow requests from the CDN origin
+
+This approach allows old application versions to continue functioning until users refresh their browser, providing zero-downtime deployments (assuming persisted queries are also handled via a shared store).
+
+**Note:** The included GitHub Actions workflows already support this deployment pattern - they can push the SPA to blob storage instead of wwwroot by configuring the appropriate options. See [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for more details on configuration options.
 
 ### 2. Type-Safe GraphQL Code Generation
 
@@ -181,7 +183,14 @@ AutoMapper is configured to [use EF Core model metadata](../AppServer/Startup.cs
 - Proper handling of navigation properties
 - Collection synchronization support
 
-**GraphQL Mutation Usage:** AutoMapper reduces boilerplate in mutations by mapping input models to entities. The [`AutoMapperProfile`](../AppGraphQL/AutoMapper/AutoMapperProfile.cs) defines mappings like [`AddPostInput`](../AppGraphQL/InputModels/AddPostInput.cs) → [`Post`](../AppDb/Models/Post.cs), which [`PostMutation`](../AppGraphQL/MutationGraphs/PostMutation.cs) uses via `_mapper.Map<Post>(input)` for creates and `_mapper.Map(input, post)` for updates. Profiles are automatically discovered from registered assemblies.
+**GraphQL Mutation Usage:** AutoMapper reduces boilerplate in mutations by mapping input models to entities. The [`AutoMapperProfile`](../AppGraphQL/AutoMapper/AutoMapperProfile.cs) defines mappings like [`AddPostInput`](../AppGraphQL/InputModels/AddPostInput.cs) → [`Post`](../AppDb/Models/Post.cs).
+
+[`PostMutation`](../AppGraphQL/MutationGraphs/PostMutation.cs) uses these mappings via:
+
+- `_mapper.Map<Post>(input)` for creating new entities
+- `_mapper.Map(input, post)` for updating existing entities
+
+Profiles are configured in [`AppServer/Startup.cs`](../AppServer/Startup.cs#L88) and loaded from the specified assemblies.
 
 ## Code Quality & Development Standards
 

@@ -1,22 +1,13 @@
 # Azure Key Vault Setup (Optional)
 
-This guide covers setting up Azure Key Vault for managing application secrets and sensitive configuration.
-
-## Overview
-
-Azure Key Vault provides secure storage for:
-
-- Connection strings
-- API keys
-- Certificates
-- Other sensitive configuration values
-
-Using Key Vault is optional but recommended for production environments.
+This guide covers setting up Azure Key Vault for managing application secrets and sensitive configuration. Azure Key Vault provides secure storage for connection strings, API keys, certificates, and other sensitive configuration values. Using Key Vault is optional but recommended for production environments.
 
 ## Prerequisites
 
-- Azure subscription
-- Resource group created
+Before starting this guide, ensure you have:
+
+- An Azure subscription
+- A resource group created
 
 ## Create Azure Key Vault
 
@@ -30,13 +21,13 @@ Using Key Vault is optional but recommended for production environments.
    - **Pricing tier**: Standard
 4. Click **Review + create**, then **Create**
 
-## Access Control
+## Configure Access Control
 
 Access to the key vault is granted through Azure role-based access control (RBAC). Applications and users that need to read secrets should be assigned the **Key Vault Secrets Officer** role.
 
 For instructions on granting your Azure Web App access to the key vault, see the [Azure Web App Setup Guide](azure-webapp-setup.md).
 
-## Add Secrets to Key Vault
+## Add Secrets
 
 1. Navigate to your key vault
 2. Go to **Objects** > **Secrets**
@@ -48,7 +39,7 @@ For instructions on granting your Azure Web App access to the key vault, see the
 
 ### Common Secrets to Store
 
-- `ConnectionStrings--DefaultConnection` - Database connection string
+- `ConnectionStrings--AppDbContext` - Database connection string
 - `Authentication--Schemes--Bearer--ValidAudience` - OAuth client ID
 - `Authentication--Schemes--Bearer--Authority` - OAuth authority URL
 - API keys for external services
@@ -58,7 +49,7 @@ For instructions on granting your Azure Web App access to the key vault, see the
 
 Use double dashes (`--`) to represent configuration hierarchy:
 
-- `ConnectionStrings--DefaultConnection` maps to `ConnectionStrings:DefaultConnection`
+- `ConnectionStrings--AppDbContext` maps to `ConnectionStrings:AppDbContext`
 - `Authentication--Schemes--Bearer--ValidAudience` maps to `Authentication:Schemes:Bearer:ValidAudience`
 
 ## Configure Application to Use Key Vault
@@ -100,11 +91,11 @@ If you use the same key vault for all environments, you can set the `KeyVaultNam
 
 In this case, no additional configuration is needed in Azure.
 
-## Local Development
+## Configure Local Development
 
 For local development, you have several options for configuring Key Vault access:
 
-### Option 1: Configure Key Vault Name via User Secrets (Recommended)
+### Option 1: Use User Secrets (Recommended)
 
 Store the key vault name locally using .NET user secrets:
 
@@ -168,9 +159,9 @@ dotnet user-secrets set "ConnectionStrings:AppDbContext" "your-connection-string
 
 **Note**: Never commit sensitive values to source control. User secrets and `appsettings.Local.json` are automatically excluded from git.
 
-## Managing Secrets
+## Manage Secrets
 
-### Adding a New Secret
+### Add a New Secret
 
 1. Navigate to your key vault in Azure Portal
 2. Go to **Secrets** > **Generate/Import**
@@ -178,7 +169,7 @@ dotnet user-secrets set "ConnectionStrings:AppDbContext" "your-connection-string
 4. Click **Create**
 5. The application will automatically pick up the new secret (may require restart)
 
-### Updating a Secret
+### Update a Secret
 
 1. Navigate to the secret in Key Vault
 2. Click **New Version**
@@ -186,7 +177,7 @@ dotnet user-secrets set "ConnectionStrings:AppDbContext" "your-connection-string
 4. Click **Create**
 5. Restart your web app to use the new version
 
-### Deleting a Secret
+### Delete a Secret
 
 1. Navigate to the secret in Key Vault
 2. Click **Delete**

@@ -1,17 +1,19 @@
 # Application Authentication Setup
 
-This guide covers configuring Azure AD (Microsoft Entra ID) authentication for your application.
+This guide covers configuring Microsoft Entra ID (formerly Azure AD) authentication for your application.
 
 ## Prerequisites
 
-- Azure subscription
-- Application deployed (or ready to deploy)
-- Application URLs known (development and/or production)
+Before starting this guide, ensure you have:
+
+- An Azure subscription
+- Application deployed or ready to deploy
+- Application URLs for your environments (development and/or production)
 
 ## Create Azure App Registration
 
 1. Navigate to the [Azure Portal](https://portal.azure.com)
-2. Go to **Microsoft Entra ID** (formerly Azure Active Directory)
+2. Go to **Microsoft Entra ID**
 3. Select **App registrations** from the left menu
 4. Click **New registration**
 

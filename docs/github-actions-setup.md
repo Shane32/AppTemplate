@@ -4,8 +4,10 @@ This guide covers configuring GitHub Actions workflows and secrets for automated
 
 ## Prerequisites
 
-- GitHub repository created from template
-- Azure Web App created (see [Azure Web App Setup](azure-webapp-setup.md))
+Before starting this guide, ensure you have:
+
+- A GitHub repository created from this template
+- An Azure Web App created (see [Azure Web App Setup](azure-webapp-setup.md))
 
 ## Create User Assigned Managed Identity
 
