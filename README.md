@@ -196,29 +196,24 @@ For Key Vault configuration instructions, see the [Azure Key Vault Setup](docs/a
 
 ## 🚢 Production Deployment
 
-This section covers automated deployment to Azure App Service using GitHub Actions.
+This section covers automated deployment to Azure App Service using GitHub Actions. While the template can be deployed to other cloud providers (AWS, Google Cloud, etc.) or on-premises infrastructure, those deployment scenarios are not covered in this documentation.
 
 ### Azure App Service (CI/CD)
 
 This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment to Azure App Service. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
 
-**Quick Start**: For complete setup instructions, see the [CI/CD Setup Guide](docs/cicd-setup.md).
+**Setup Steps**:
 
-**Setup Overview**: Follow these steps in order to set up production deployment:
+1. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create the Azure Web App, enable its system-assigned managed identity, and grant it permissions to access your database and Key Vault
+2. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Create a user-assigned managed identity for CI/CD, configure federated credentials for GitHub Actions, and set up GitHub environments and secrets
 
-1. **[Azure Database Setup](docs/azure-database-setup.md)** - Create and configure Azure SQL Database
-2. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Create and configure Azure AD app registration
-3. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
-4. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create and configure Azure Web App with managed identity
-5. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
+**How It Works**:
 
-**What's Included**: The template includes workflows for:
+- **Pull Requests**: Automatically builds and tests code when a pull request is opened
+- **Development Environment**: Automatically deploys to the development environment when changes are merged to the `master` branch
+- **Production Environment**: Manually deploys to production when you create a GitHub release
 
-- **Pull Requests**: Automatic build and test validation
-- **Development**: Automatic deployment to development environment on merge to `master`
-- **Production**: Manual deployment to production on release
-
-**Environment Requirements**: Configure one or both environments as needed. **Development** deploys automatically on push to `master`. **Production** deploys only on GitHub releases. Each environment requires its own Azure resources and GitHub configuration.
+Each environment requires its own Azure Web App and GitHub configuration. You can configure one or both environments as needed.
 
 ## 🔒 Security Considerations
 

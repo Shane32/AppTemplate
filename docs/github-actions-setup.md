@@ -5,8 +5,7 @@ This guide covers configuring GitHub Actions workflows and secrets for automated
 ## Prerequisites
 
 - GitHub repository created from template
-- Azure Web App created with system-assigned managed identity enabled
-- Azure SQL Database created
+- Azure Web App created (see [Azure Web App Setup](azure-webapp-setup.md))
 
 ## Create User Assigned Managed Identity
 
@@ -39,15 +38,15 @@ The user-assigned managed identity is used for GitHub Actions to authenticate an
 
 ### Note Important IDs
 
-From the managed identity **Overview** page, note the following values (you'll need them for GitHub secrets):
+From the managed identity **Overview** page, note the following values (you'll need them for GitHub variables):
 
-- **Client ID** - needed for `AZURE_CLIENT_ID` secret
-- **Subscription ID** - needed for `AZURE_SUBSCRIPTION_ID` secret
+- **Client ID** - needed for `AZURE_CLIENT_ID` variable
+- **Subscription ID** - needed for `AZURE_SUBSCRIPTION_ID` variable
 
 You'll also need your **Tenant ID**, which can be found:
 
 1. Go to **Microsoft Entra ID** in Azure Portal
-2. The **Tenant ID** is shown on the Overview page - needed for `AZURE_TENANT_ID` secret
+2. The **Tenant ID** is shown on the Overview page - needed for `AZURE_TENANT_ID` variable
 
 ### Assign Deployment Permissions
 
@@ -78,30 +77,20 @@ GitHub environments allow you to configure environment-specific secrets and prot
    - `Development` - for automatic deployments from master branch
    - `Production` - for release deployments
 
-### Configure Environment Protection Rules (Optional)
+## Configure Environment Variables
 
-For the Production environment, you may want to add protection rules:
+You need to configure variables for each environment (Development and Production).
 
-1. Click on the **Production** environment
-2. Under **Deployment protection rules**:
-   - Enable **Required reviewers** and add reviewers
-   - Enable **Wait timer** if you want a delay before deployment
-3. Click **Save protection rules**
+### Required Variables
 
-## Configure Environment Secrets
-
-You need to configure secrets for each environment (Development and Production).
-
-### Required Secrets
-
-For each environment, add the following secrets:
+For each environment, add the following variables:
 
 1. Navigate to **Settings** > **Environments**
 2. Click on the environment name (Development or Production)
-3. Under **Environment secrets**, click **Add secret**
-4. Add each of the following secrets:
+3. Under **Environment variables**, click **Add variable**
+4. Add each of the following variables:
 
-| Secret Name             | Description                | Where to Find                 |
+| Variable Name           | Description                | Where to Find                 |
 | ----------------------- | -------------------------- | ----------------------------- |
 | `AZURE_TENANT_ID`       | Your Azure tenant ID       | Microsoft Entra ID > Overview |
 | `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID | Managed Identity > Overview   |
@@ -110,26 +99,28 @@ For each environment, add the following secrets:
 
 ### Example Values
 
-```
+```env
 AZURE_TENANT_ID=12345678-1234-1234-1234-123456789abc
 AZURE_SUBSCRIPTION_ID=87654321-4321-4321-4321-cba987654321
 AZURE_CLIENT_ID=abcdef12-3456-7890-abcd-ef1234567890
 AZURE_WEBAPP_NAME=myapp-dev
 ```
 
+### Additional Variables
+
+Any additional environment variables you add will automatically be passed to the SPA build process. For example, if you add a variable `VITE_API_URL`, it will be available during the Vite build and can be accessed in your React application using `import.meta.env.VITE_API_URL`.
+
+**Note:** Vite requires environment variables to be prefixed with `VITE_` to be exposed to the client-side code.
+
 ## Verify Workflow Files
 
 The template includes pre-configured GitHub Actions workflows in `.github/workflows/`:
 
-- **`build.yml`** - Runs on pull requests to build and test
-- **`deploy_dev.yml`** - Deploys to development on merge to master
+- **`build_check.yml`** - Runs on pull requests to build and test
+- **`push_master.yml`** - Deploys to development on merge to master
 - **`publish_release.yml`** - Deploys to production on release
 
-### Workflow Triggers
-
-- **Pull Requests**: Automatically builds and tests code
-- **Push to master**: Automatically deploys to Development environment
-- **Release**: Manually deploy to Production environment
+These workflows use reusable workflows from [Shane32/SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for standardized build and deployment processes.
 
 ## Test Your Setup
 
@@ -151,69 +142,17 @@ The template includes pre-configured GitHub Actions workflows in `.github/workfl
 
 1. Go to **Releases** in your repository
 2. Click **Draft a new release**
-3. Create a new tag (e.g., `v1.0.0`)
+3. Create a new tag in `x.x.x` format (e.g., `1.0.0`, `2025.1.15`, or `2025.1.42`)
+   - Common formats: `major.minor.revision`, `year.month.day`, or `year.month.buildnum`
 4. Click **Publish release**
 5. Go to **Actions** tab
 6. Verify the production deployment workflow runs
 7. Check your production web app to confirm deployment
 
-## Adding Environments
-
-To add a new environment (e.g., Staging):
-
-1. Create the Azure resources (Web App, Database, Managed Identity)
-2. Create a new GitHub environment with the name `Staging`
-3. Add the four required secrets for the new environment
-4. Create or modify a workflow file to deploy to the new environment
-5. Update the workflow trigger as needed
+**Note:** The tag must be in `x.x.x` format (three numbers separated by dots) for the production deployment workflow to trigger.
 
 ## Important Notes
 
 - The user-assigned managed identity must be in the same subscription as the web app for deployment to succeed
 - Create separate managed identities for development and production environments
 - The federated credential environment name must exactly match the GitHub environment name (case-sensitive)
-- Keep the Client ID, Subscription ID, and Tenant ID secure
-
-## Troubleshooting
-
-### Deployment Fails with Authentication Error
-
-- Verify the user-assigned managed identity has Website Contributor role on the web app
-- Verify the federated credential is configured correctly with the exact environment name (case-sensitive)
-- Check that all four secrets are set correctly in the GitHub environment
-- Ensure the managed identity is in the same subscription as the web app
-
-### Build Fails
-
-- Check the workflow logs in the Actions tab
-- Verify all dependencies are correctly specified in project files
-- Ensure tests are passing locally before pushing
-
-### Database Connection Fails
-
-- Verify the web app's managed identity has been granted database permissions
-- Check the connection string is configured correctly
-- Ensure the SQL Server firewall allows Azure services
-
-### Workflow Doesn't Trigger
-
-- Verify the workflow file is in `.github/workflows/` directory
-- Check the trigger conditions match your action (push, pull_request, release)
-- Ensure the branch name matches the workflow configuration
-
-## Workflow Customization
-
-You can customize the workflows by editing the YAML files in `.github/workflows/`:
-
-- Modify build steps
-- Add additional testing
-- Change deployment conditions
-- Add notifications
-- Integrate with other services
-
-Refer to [GitHub Actions documentation](https://docs.github.com/en/actions) for more details.
-
-## Next Steps
-
-- (Optional) Continue to [Azure Key Vault Setup](azure-keyvault-setup.md) for secrets management
-- Your CI/CD pipeline is now configured! See the [CI/CD Setup Guide](cicd-setup.md) for an overview of all components.
