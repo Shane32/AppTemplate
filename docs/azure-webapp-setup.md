@@ -4,8 +4,10 @@ This guide covers creating and configuring an Azure Web App for hosting your app
 
 ## Prerequisites
 
-- Azure subscription
-- Resource group created (or permission to create one)
+Before starting this guide, ensure you have:
+
+- An Azure subscription
+- A resource group created (or permission to create one)
 
 ## Create Azure Web App
 

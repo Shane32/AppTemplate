@@ -4,8 +4,10 @@ This guide covers creating and configuring an Azure SQL Database for your applic
 
 ## Prerequisites
 
-- Azure subscription
-- Resource group created (or permission to create one)
+Before starting this guide, ensure you have:
+
+- An Azure subscription
+- A resource group created (or permission to create one)
 
 ## Create Azure SQL Database
 
@@ -36,8 +38,8 @@ If you need to create a new SQL Server:
 2. Configure the server:
    - **Server name**: Choose a unique name (e.g., `myapp-sql-server`)
    - **Location**: Same region as your web app
-   - **Authentication method**: Use Microsoft Entra authentication only (recommended)
-   - **Set Microsoft Entra admin**: Select yourself or appropriate admin
+   - **Authentication method**: Use Microsoft Entra ID authentication only (recommended)
+   - **Set Microsoft Entra ID admin**: Select yourself or appropriate admin
 3. Click **OK**
 
 ## Configure Database Access
@@ -48,7 +50,7 @@ As the database creator, you automatically have full access to the database thro
 
 1. Navigate to your SQL Database in Azure Portal
 2. Click **Query editor** (or use SQL Server Management Studio)
-3. Authenticate using Microsoft Entra authentication with your account
+3. Authenticate using Microsoft Entra ID authentication with your account
 
 ### Add Additional Users (Optional)
 
@@ -90,7 +92,7 @@ Update `AppServer/appsettings.json` in your repository:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;"
+    "AppDbContext": "Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;"
   }
 }
 ```
@@ -112,7 +114,7 @@ The database will be automatically initialized on first application run using En
 
 - As the database creator, you automatically have db_owner permissions
 - Additional developers need to be explicitly granted access (see above)
-- Use Microsoft Entra authentication for enhanced security
+- Use Microsoft Entra ID authentication for enhanced security
 - The connection string uses `Authentication=Active Directory Default` to use your Azure credentials locally
 - Database schema is managed through Entity Framework migrations in the application
 - For production deployment, the web app's managed identity will need database permissions (configured during [Azure Web App Setup](azure-webapp-setup.md))

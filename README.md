@@ -27,7 +27,7 @@ This repository provides a production-ready template for building full-stack app
 - TypeScript
 - Vite
 - GraphQL Code Generator
-- Azure AD Authentication
+- Microsoft Entra ID (Azure AD) Authentication
 
 ### Development Environment
 
@@ -168,6 +168,26 @@ These and other operational principles are documented in detail in the [Operatio
 
 This section covers the Azure resources and configuration required for production deployments. All production deployments use passwordless authentication via managed identities.
 
+### Setup Order
+
+For first-time production setup, follow these guides in order:
+
+1. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Create Key Vault for storing secrets
+2. **[Azure Database Setup](docs/azure-database-setup.md)** - Create the SQL database and server
+3. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create the web app, enable its managed identity, and grant it access to the database and Key Vault
+4. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Configure Microsoft Entra ID app registration for user authentication
+5. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Set up CI/CD pipelines for automated deployment
+
+Each guide builds on the previous steps, so following this order ensures all dependencies are in place.
+
+### Azure Key Vault (optional)
+
+Azure Key Vault provides secure storage for application secrets, connection strings, and other sensitive configuration values. The template is configured to automatically load secrets from Key Vault in both development and production environments.
+
+Key Vault setup is optional but recommended for production deployments. When configured, secrets stored in Key Vault will override values in appsettings.json, allowing you to keep sensitive information out of your codebase.
+
+For Key Vault configuration instructions, see the [Azure Key Vault Setup](docs/azure-keyvault-setup.md) guide.
+
 ### Database
 
 The template uses **SQL Server LocalDB** for local development (automatically installed with Visual Studio) and **SQLite** for testing. The database is automatically created on first run using Entity Framework migrations.
@@ -178,7 +198,15 @@ For production database configuration, see the [Azure Database Setup](docs/azure
 
 Alternatively, the template is compatible with any Entity Framework Core-supported database provider. To use a different provider, install the appropriate NuGet package, update the connection string, update the EF setup in Startup.cs, and recreate the migrations. Note that if your connection string contains a password, consider storing it in Azure Key Vault, which will be automatically picked up by both development and production environments.
 
-### Azure App Registration
+### Azure Web App
+
+Azure Web App hosts your application in the cloud. The template is designed for deployment to Azure App Service on Linux with .NET 10.
+
+Create the Azure Web App, enable its system-assigned managed identity, and grant it permissions to access your database and Key Vault. The managed identity eliminates the need to store passwords or connection strings in configuration.
+
+For complete web app setup instructions, see the [Azure Web App Setup](docs/azure-webapp-setup.md) guide.
+
+### Application Authentication
 
 The template includes a pre-configured Azure AD client ID that **only works with localhost** (`https://localhost:44323/oauth/callback`). This is for local development convenience only and **cannot be used in any deployed environment**.
 
@@ -186,26 +214,9 @@ Before deploying to development, staging, or production, you must create your ow
 
 For complete authentication setup instructions, see the [Application Authentication Setup](docs/azure-authentication-setup.md) guide.
 
-### Azure Key Vault
+### GitHub Actions (CI/CD)
 
-Azure Key Vault provides secure storage for application secrets, connection strings, and other sensitive configuration values. The template is configured to automatically load secrets from Key Vault in both development and production environments.
-
-Key Vault setup is optional but recommended for production deployments. When configured, secrets stored in Key Vault will override values in appsettings.json, allowing you to keep sensitive information out of your codebase.
-
-For Key Vault configuration instructions, see the [Azure Key Vault Setup](docs/azure-keyvault-setup.md) guide.
-
-## 🚢 Production Deployment
-
-This section covers automated deployment to Azure App Service using GitHub Actions. While the template can be deployed to other cloud providers (AWS, Google Cloud, etc.) or on-premises infrastructure, those deployment scenarios are not covered in this documentation.
-
-### Azure App Service (CI/CD)
-
-This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment to Azure App Service. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
-
-**Setup Steps**:
-
-1. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create the Azure Web App, enable its system-assigned managed identity, and grant it permissions to access your database and Key Vault
-2. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Create a user-assigned managed identity for CI/CD, configure federated credentials for GitHub Actions, and set up GitHub environments and secrets
+This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
 
 **How It Works**:
 
@@ -214,6 +225,8 @@ This template includes pre-configured GitHub Actions workflows for automated bui
 - **Production Environment**: Manually deploys to production when you create a GitHub release
 
 Each environment requires its own Azure Web App and GitHub configuration. You can configure one or both environments as needed.
+
+For complete CI/CD setup instructions, see the [GitHub Actions Configuration](docs/github-actions-setup.md) guide.
 
 ## 🔒 Security Considerations
 
