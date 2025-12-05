@@ -208,9 +208,9 @@ This template includes pre-configured GitHub Actions workflows for automated bui
 
 1. **[Azure Database Setup](docs/azure-database-setup.md)** - Create and configure Azure SQL Database
 2. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Create and configure Azure AD app registration
-3. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create and configure Azure Web App with managed identity
-4. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
-5. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
+3. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Set up secure secrets management
+4. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create and configure Azure Web App with managed identity
+5. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Configure GitHub environments and secrets
 
 **What's Included**: The template includes workflows for:
 

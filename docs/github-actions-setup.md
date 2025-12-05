@@ -5,9 +5,65 @@ This guide covers configuring GitHub Actions workflows and secrets for automated
 ## Prerequisites
 
 - GitHub repository created from template
-- Azure Web App created with managed identity configured
+- Azure Web App created with system-assigned managed identity enabled
 - Azure SQL Database created
-- Client ID, Subscription ID, and Tenant ID from Azure setup
+
+## Create User Assigned Managed Identity
+
+The user-assigned managed identity is used for GitHub Actions to authenticate and deploy to Azure.
+
+1. In Azure Portal, search for **Managed Identities**
+2. Click **Create**
+3. Configure the identity:
+   - **Subscription**: Same as the web app
+   - **Resource Group**: Same as the web app
+   - **Region**: Same as the web app
+   - **Name**: Use the web app name with `-identity` appended (e.g., `myapp-dev-identity`)
+4. Click **Review + create**, then **Create**
+
+### Configure Federated Credentials
+
+1. Navigate to the managed identity you just created
+2. Go to **Settings** > **Federated credentials**
+3. Click **Add credential**
+4. Configure the credential:
+   - **Federated credential scenario**: GitHub Actions deploying Azure resources
+   - **Organization**: Your GitHub organization or username
+   - **Repository**: Your repository name
+   - **Entity type**: Environment
+   - **Environment name**: `Development` or `Production` (must match GitHub environment name exactly)
+   - **Name**: Use the identity name with `-cred` appended (e.g., `myapp-dev-identity-cred`)
+5. Click **Add**
+
+**Note:** You'll need to create separate managed identities and federated credentials for each environment (Development and Production).
+
+### Note Important IDs
+
+From the managed identity **Overview** page, note the following values (you'll need them for GitHub secrets):
+
+- **Client ID** - needed for `AZURE_CLIENT_ID` secret
+- **Subscription ID** - needed for `AZURE_SUBSCRIPTION_ID` secret
+
+You'll also need your **Tenant ID**, which can be found:
+
+1. Go to **Microsoft Entra ID** in Azure Portal
+2. The **Tenant ID** is shown on the Overview page - needed for `AZURE_TENANT_ID` secret
+
+### Assign Deployment Permissions
+
+The managed identity needs permission to deploy to the web app.
+
+1. Navigate to your web app in Azure Portal
+2. Go to **Access control (IAM)**
+3. Click **Add** > **Add role assignment**
+4. Configure the role:
+   - **Role**: Website Contributor
+   - **Assign access to**: Managed identity
+   - Click **Select members**
+   - **Subscription**: Select the subscription where the managed identity was created
+   - **Managed identity**: User-assigned managed identity
+   - Select the managed identity you created above
+5. Click **Review + assign**
 
 ## Configure GitHub Environments
 
@@ -111,13 +167,21 @@ To add a new environment (e.g., Staging):
 4. Create or modify a workflow file to deploy to the new environment
 5. Update the workflow trigger as needed
 
+## Important Notes
+
+- The user-assigned managed identity must be in the same subscription as the web app for deployment to succeed
+- Create separate managed identities for development and production environments
+- The federated credential environment name must exactly match the GitHub environment name (case-sensitive)
+- Keep the Client ID, Subscription ID, and Tenant ID secure
+
 ## Troubleshooting
 
 ### Deployment Fails with Authentication Error
 
-- Verify the managed identity has Website Contributor role on the web app
-- Verify the federated credential is configured correctly with the right environment name
+- Verify the user-assigned managed identity has Website Contributor role on the web app
+- Verify the federated credential is configured correctly with the exact environment name (case-sensitive)
 - Check that all four secrets are set correctly in the GitHub environment
+- Ensure the managed identity is in the same subscription as the web app
 
 ### Build Fails
 
