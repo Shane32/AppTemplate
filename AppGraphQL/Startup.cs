@@ -1,6 +1,7 @@
 #pragma warning disable IDE0060 // Remove unused parameter
 using System.Reflection;
 using System.Text.Json;
+using GraphQL.AspNetCore3;
 using GraphQL.Execution;
 using GraphQL.Linq.EntityFrameworkCore8;
 using Microsoft.Extensions.Configuration;
@@ -48,6 +49,7 @@ public class Startup
                 o.GetQueryDelegate = (options, prefix, hash) => persistedDocuments == null || !persistedDocuments.TryGetValue(hash, out var query) ? default : new(query);
             })
             .ValidateServices()
+            .AddAuthorizationRule()
         );
     }
 
