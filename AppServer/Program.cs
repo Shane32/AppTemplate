@@ -51,6 +51,6 @@ public class Program
             await startup.RunInitializationTestsAsync(app.Services);
         }
         startup.Configure(app, app.Environment);
-        app.Run();
+        await app.RunAsync();
     }
 }
