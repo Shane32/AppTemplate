@@ -1,6 +1,7 @@
 #pragma warning disable IDE0060 // Remove unused parameter
 using System.Reflection;
 using System.Text.Json;
+using GraphQL.AspNetCore3;
 using GraphQL.Execution;
 using GraphQL.Linq.EntityFrameworkCore8;
 using Microsoft.Extensions.Configuration;
