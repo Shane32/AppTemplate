@@ -20,6 +20,7 @@ const config: CodegenConfig = {
           DateOnly: "string",
           DateTimeOffset: "string",
           Decimal: "number",
+          TimeOnly: "string",
           Uri: "string",
         },
         strictScalars: true,
