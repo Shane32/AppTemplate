@@ -1,6 +1,7 @@
 {
   "eslint.workingDirectories": ["ReactApp"],
   "typescript.tsdk": "ReactApp/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
 
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
