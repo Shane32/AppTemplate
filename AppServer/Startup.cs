@@ -113,7 +113,19 @@ public class Startup
         }
 
         app.UseHttpsRedirection();
+
+        // Serve static files from /static with cache control headers
+        app.UseStaticFiles(new StaticFileOptions {
+            FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+                Path.Combine(env.ContentRootPath, "wwwroot", "static")),
+            RequestPath = "/static",
+            // Cache static files for 1 year
+            OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
+        });
+
+        // Serve other static files without cache control
         app.UseStaticFiles();
+
         app.UseCors();
         app.UseWebSockets();
 
