@@ -118,7 +118,7 @@ public class Startup
         // Serve static files from /static with cache control headers
         if (!string.IsNullOrEmpty(env.WebRootPath)) {
             var staticPath = Path.Combine(env.WebRootPath, "static");
-            if (Path.Exists(staticPath)) {
+            if (Directory.Exists(staticPath)) {
                 app.UseCompressedStaticFiles(new CompressedStaticFileOptions {
                     FileSystemPath = Path.Combine(env.WebRootPath, "static"),
                     RequestPath = "/static",
