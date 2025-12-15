@@ -8,6 +8,7 @@ using GraphQL.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
+using Shane32.CompressedStaticFiles;
 
 namespace AppServer;
 
@@ -118,7 +119,7 @@ public class Startup
         if (!string.IsNullOrEmpty(env.WebRootPath)) {
             var staticPath = Path.Combine(env.WebRootPath, "static");
             if (Path.Exists(staticPath)) {
-                app.UseCompressedStaticFiles(new Shane32.CompressedStaticFiles.CompressedStaticFileOptions {
+                app.UseCompressedStaticFiles(new CompressedStaticFileOptions {
                     FileSystemPath = Path.Combine(env.WebRootPath, "static"),
                     RequestPath = "/static",
                     OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
