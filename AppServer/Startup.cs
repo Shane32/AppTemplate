@@ -129,16 +129,15 @@ public class Startup
         // Serve the SPA for all paths that don't start with /api or /static
         List<PathString> apiPathStrings = ["/api", "/static"];
         app.MapWhen(context => !apiPathStrings.Any(apiPathString => context.Request.Path.StartsWithSegments(apiPathString, StringComparison.OrdinalIgnoreCase)), app => {
-            // Serve other static files without cache control
+            // Serve other static files without caching (verify etag on each load)
             app.UseStaticFiles(new StaticFileOptions() {
-                // No caching for SPA files
                 OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
             });
+            // Serve index.html for unmatched files without caching (verify etag on each load)
             app.UseSpa(spa => {
                 spa.Options.SourcePath = env.WebRootPath;
                 spa.Options.DefaultPage = "/index.html";
                 spa.Options.DefaultPageStaticFileOptions = new() {
-                    // No caching for SPA files
                     OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
                 };
 #if DEBUG
