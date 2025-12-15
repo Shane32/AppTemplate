@@ -115,16 +115,28 @@ public class Startup
         app.UseHttpsRedirection();
 
         // Serve static files from /static with cache control headers
-        app.UseStaticFiles(new StaticFileOptions {
-            FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-                Path.Combine(env.ContentRootPath, "wwwroot", "static")),
-            RequestPath = "/static",
-            // Cache static files for 1 year
-            OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
-        });
+        var staticPath = Path.Combine(env.WebRootPath, "static");
+        if (Path.Exists(staticPath)) {
+            app.UseCompressedStaticFiles(new Shane32.CompressedStaticFiles.CompressedStaticFileOptions {
+                FileSystemPath = Path.Combine(env.WebRootPath, "static"),
+                RequestPath = "/static",
+                OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
+            });
+        }
 
-        // Serve other static files without cache control
-        app.UseStaticFiles();
+        // Serve the SPA for all paths that don't start with /api or /static
+        List<PathString> apiPathStrings = ["/api", "/static"];
+        app.UseWhen(context => !apiPathStrings.Any(apiPathString => context.Request.Path.StartsWithSegments(apiPathString, StringComparison.OrdinalIgnoreCase)), app => {
+            // Serve other static files without cache control
+            app.UseStaticFiles();
+            app.UseSpa(spa => {
+                spa.Options.SourcePath = env.WebRootPath;
+                spa.Options.DefaultPage = "/index.html";
+#if DEBUG
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:5173");
+#endif
+            });
+        });
 
         app.UseCors();
         app.UseWebSockets();
@@ -168,18 +180,6 @@ public class Startup
             endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}");
-        });
-
-        // Serve the SPA for all paths that don't start with /api or /static
-        List<PathString> apiPathStrings = ["/api", "/static"];
-        app.UseWhen(context => !apiPathStrings.Any(apiPathString => context.Request.Path.StartsWithSegments(apiPathString, StringComparison.OrdinalIgnoreCase)), app => {
-            app.UseSpa(spa => {
-                spa.Options.SourcePath = "wwwroot";
-                spa.Options.DefaultPage = "/index.html";
-#if DEBUG
-                spa.UseProxyToSpaDevelopmentServer("http://localhost:5173");
-#endif
-            });
         });
     }
 
