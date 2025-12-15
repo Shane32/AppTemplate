@@ -115,13 +115,15 @@ public class Startup
         app.UseHttpsRedirection();
 
         // Serve static files from /static with cache control headers
-        var staticPath = Path.Combine(env.WebRootPath, "static");
-        if (Path.Exists(staticPath)) {
-            app.UseCompressedStaticFiles(new Shane32.CompressedStaticFiles.CompressedStaticFileOptions {
-                FileSystemPath = Path.Combine(env.WebRootPath, "static"),
-                RequestPath = "/static",
-                OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
-            });
+        if (!string.IsNullOrEmpty(env.WebRootPath)) {
+            var staticPath = Path.Combine(env.WebRootPath, "static");
+            if (Path.Exists(staticPath)) {
+                app.UseCompressedStaticFiles(new Shane32.CompressedStaticFiles.CompressedStaticFileOptions {
+                    FileSystemPath = Path.Combine(env.WebRootPath, "static"),
+                    RequestPath = "/static",
+                    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable",
+                });
+            }
         }
 
         // Serve the SPA for all paths that don't start with /api or /static
