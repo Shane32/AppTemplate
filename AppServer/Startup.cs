@@ -128,16 +128,19 @@ public class Startup
 
         // Serve the SPA for all paths that don't start with /api or /static
         List<PathString> apiPathStrings = ["/api", "/static"];
-        app.UseWhen(context => !apiPathStrings.Any(apiPathString => context.Request.Path.StartsWithSegments(apiPathString, StringComparison.OrdinalIgnoreCase)), app => {
-            // Serve other static files without no caching to ensure the latest version is always loaded
-            if (!string.IsNullOrEmpty(env.WebRootPath)) {
-                app.UseCompressedStaticFiles(new() {
-                    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-store",
-                });
-            }
+        app.MapWhen(context => !apiPathStrings.Any(apiPathString => context.Request.Path.StartsWithSegments(apiPathString, StringComparison.OrdinalIgnoreCase)), app => {
+            // Serve other static files without cache control
+            app.UseStaticFiles(new StaticFileOptions() {
+                // No caching for SPA files
+                OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
+            });
             app.UseSpa(spa => {
                 spa.Options.SourcePath = env.WebRootPath;
                 spa.Options.DefaultPage = "/index.html";
+                spa.Options.DefaultPageStaticFileOptions = new() {
+                    // No caching for SPA files
+                    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
+                };
 #if DEBUG
                 spa.UseProxyToSpaDevelopmentServer("http://localhost:5173");
 #endif
