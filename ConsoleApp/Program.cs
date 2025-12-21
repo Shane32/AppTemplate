@@ -27,7 +27,7 @@ internal sealed class Program
     {
         services.AddSingleton(context.Configuration);
 
-        var connectionString = context.Configuration.GetConnectionString("ZuluDbContext") ?? throw new InvalidOperationException("Could not find ZuluDbContext connection string");
+        var connectionString = context.Configuration.GetConnectionString("AppDbContext") ?? throw new InvalidOperationException("Could not find AppDbContext connection string");
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
     }
