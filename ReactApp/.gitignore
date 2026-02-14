@@ -25,4 +25,7 @@ dist-ssr
 *.sln
 *.sw?
 /src/gql/persisted-documents.json
+/src/gql/gql.ts
+/src/gql/graphql.ts
+*.g.ts
 /stats.html
