@@ -25,7 +25,7 @@ const GraphiQL = () => {
 
   // Fetcher function using async/await for token retrieval and request execution
   const fetcher = async (graphQLParams: unknown) => {
-    const token = await authContext.authManager.getAccessToken(); // Fetch the token asynchronously
+    const token = await authContext.authManager.getIdToken(); // Fetch the token asynchronously
     const response = await fetch(import.meta.env.VITE_GRAPHQL_URL, {
       method: "post",
       headers: {
