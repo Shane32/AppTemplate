@@ -1,9 +1,41 @@
 ---
 name: graphql-client
-description: Create or modify client-side GraphQL queries and mutations for the React application.
+description: Create or modify client-side GraphQL queries, mutations, and fragments for the React application. Use when adding GraphQL operations to React components, implementing data fetching with useQuery/useMutation hooks, working with persisted queries, troubleshooting codegen issues, fixing duplicate operation name errors, creating .queries.ts files, or handling TypeScript type generation for GraphQL.
 ---
 
 # GraphQL Client-side Query Design Rules
+
+## When to Use This Skill
+
+Use this skill when the user requests:
+
+- Adding GraphQL queries or mutations to React components
+- Creating new `.queries.ts` files
+- Implementing data fetching with `useQuery` or `useMutation`
+- Working with GraphQL fragments
+- Implementing pagination in the UI
+- Troubleshooting "duplicate operation name" errors
+- Fixing codegen or type generation issues
+- Converting inline GraphQL to the `.queries.ts` pattern
+- Adding persisted query support
+- Debugging GraphQL client errors
+- Fetching data from the GraphQL API
+- Calling mutations from React components
+- Working with TypeScript/React code in `ReactApp/src/`
+- Fixing issues with `.queries.g.ts` files not being generated
+- Resolving type errors related to GraphQL operations
+
+## Quick Reference
+
+- **Pattern**: `Component.tsx` + `Component.queries.ts` + `Component.queries.g.ts` (auto-generated)
+- **Import from**: `.queries.g.ts` files (NOT `.queries.ts`)
+- **Data fetching**: `useQuery(Queries.OperationNameDocument)`
+- **Mutations**: `useMutation(Queries.OperationNameDocument)`
+- **Critical rule**: Every operation MUST have a unique name globally
+- **Codegen**: Runs automatically with `npm run dev`, manual: `npm run codegen`
+- **Schema source**: `../Tests/Infrastructure/ServerTests.Introspection.approved.graphql`
+- **Update types**: Run `dotnet test` (in root), then `npm run codegen` (in ReactApp)
+- **Key libraries**: @shane32/graphql, @graphql-codegen/cli, React, TypeScript, Vite
 
 When the user requests new or modified GraphQL queries or mutations for the React application, the following rules **MUST** be followed. This pattern is **CRITICAL** for the application to function in production.
 

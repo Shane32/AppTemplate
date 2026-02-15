@@ -1,9 +1,40 @@
 ---
 name: graphql-server
-description: Add or edit server graphs for use by GraphQL clients.
+description: Add or edit server-side GraphQL schemas, queries, mutations, graph types, and resolvers. Use when modifying C# GraphQL.NET server code, adding new entity types, creating query endpoints, implementing mutations, updating the GraphQL schema, working with EfObjectGraphType, DIObjectGraphBase, AutoMapper integration, GraphQL.Linq patterns, or writing GraphQL tests.
 ---
 
 # GraphQL Server-side graph design rules
+
+## When to Use This Skill
+
+Use this skill when the user requests:
+
+- Adding new GraphQL queries or mutations
+- Creating or modifying entity graph types (PostGraphType, UserGraphType, etc.)
+- Implementing server-side GraphQL resolvers
+- Adding navigation properties or relationships to graph types
+- Modifying the GraphQL schema structure
+- Creating input models or output models (DTOs)
+- Working with Entity Framework and GraphQL integration
+- Implementing pagination with Relay connections
+- Adding AutoMapper mappings for GraphQL inputs
+- Writing or updating GraphQL tests
+- Fixing GraphQL schema errors or validation issues
+- Adding fields to existing graph types
+- Implementing data loaders or batch loading
+- Working with C# code in the `AppGraphQL/` folder
+
+## Quick Reference
+
+- **Query entry points**: `AppGraphQL/Query.cs`
+- **Entity graphs**: `AppGraphQL/QueryGraphs/*.cs` (derive from `EfObjectGraphType`)
+- **Mutations**: `AppGraphQL/MutationGraphs/*.cs` (derive from `DIObjectGraphBase`)
+- **Input models**: `AppGraphQL/InputModels/*.cs`
+- **Output models**: `AppGraphQL/OutputModels/*.cs`
+- **Tests**: `Tests/Queries/*.cs` and `Tests/Mutations/*.cs`
+- **Schema file**: `Tests/Infrastructure/ServerTests.Introspection.approved.graphql`
+- **Update schema**: Run `dotnet test` and approve introspection changes
+- **Key libraries**: GraphQL.NET, GraphQL.Linq, GraphQL.DI, Entity Framework Core, AutoMapper
 
 When the user requests new or modified graphs, the following rules should be followed:
 
