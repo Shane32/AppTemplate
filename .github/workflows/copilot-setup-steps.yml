@@ -1,0 +1,37 @@
+name: Configure Copilot agent environment
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ReactApp/package.json
+
+      - name: Install Node.js dependencies
+        working-directory: ReactApp
+        run: npm install
+
+      - name: Run codegen
+        working-directory: ReactApp
+        run: npm run codegen
