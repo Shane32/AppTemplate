@@ -266,10 +266,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 ### Third-Party Package Licensing
 
-This application uses various third-party packages and libraries, some of which may require separate licensing. Notable packages that may require licensing include:
-
-- **AutoMapper** - Visit [automapper.io](https://automapper.io/) for licensing information
-- **GraphQL.Linq** - See the [GraphQL.Linq repository](https://github.com/graphql-linq/GraphQL.Linq) for licensing details
+This application uses various third-party packages and libraries, some of which may require separate licensing. Notable packages that may require licensing include **GraphQL.Linq** - See the [GraphQL.Linq repository](https://github.com/graphql-linq/GraphQL.Linq) for licensing details.
 
 It is your responsibility to review and comply with the licensing requirements of all third-party packages used in your project.
 
