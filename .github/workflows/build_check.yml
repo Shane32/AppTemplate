@@ -11,6 +11,7 @@ jobs:
   build-check:
     uses: Shane32/SharedWorkflows/.github/workflows/build-check.yml@v2
     with:
-      dotnet_folder: '.'
+      dotnet_folder: "."
       spa_folder: ReactApp
       analysis_artifacts: ReactApp/stats.html
+      npm_build_script: build-ci

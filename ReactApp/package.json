@@ -6,7 +6,8 @@
   "scripts": {
     "codegen": "rimraf -g \"**/*.g.ts\" && graphql-codegen",
     "dev": "concurrently \"vite\" \"graphql-codegen --watch\"",
-    "build": "rimraf -g \"**/*.g.ts\" && graphql-codegen --config codegen-production.ts --verbose && tsc && vite build",
+    "build": "rimraf -g \"**/*.g.ts\" && graphql-codegen --verbose && tsc",
+    "build-ci": "rimraf -g \"**/*.g.ts\" && graphql-codegen --config codegen-production.ts --verbose && tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "pretty-quick": "pretty-quick --staged --pattern \"ReactApp/**/*.*\"",
@@ -48,11 +49,19 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.24",
     "husky": "^9.1.7",
-    "pretty-quick": "^4.2.2",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
     "rimraf": "^4.4.1",
     "rollup-plugin-visualizer": "^5.14.0",
     "typescript": "^5.9.3",
     "vite": "^5.4.21",
     "vite-plugin-compression2": "^2.4.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --report-unused-disable-directives --fix",
+      "prettier --write"
+    ],
+    "*.{md,json,js,jsx,css,scss,html}": "prettier --write"
   }
 }
