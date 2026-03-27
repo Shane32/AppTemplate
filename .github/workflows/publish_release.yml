@@ -18,3 +18,4 @@ jobs:
       environment_name: Production
       persisted_documents_file: ReactApp/src/gql/persisted-documents.json
       analysis_artifacts: ReactApp/stats.html
+      npm_build_script: build-ci

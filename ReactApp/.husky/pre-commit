@@ -1,4 +1,14 @@
+#!/usr/bin/env sh
+
+# Only run checks if files under ReactApp/ are staged.
+if ! git diff --cached --name-only | grep -q "^ReactApp/"; then
+  exit 0
+fi
+
 cd ReactApp
-npm.cmd run pretty-quick
-npm.cmd run lint
-npx.cmd tsc
+# Note: Use fast-fail chaining (&&) to avoid running tsc if lint-staged fails, and preventing masking of errors.
+if command -v npm.cmd > /dev/null 2>&1; then
+  npx.cmd lint-staged && npx.cmd tsc
+else
+  npx lint-staged && npx tsc
+fi
