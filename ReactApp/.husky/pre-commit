@@ -6,10 +6,9 @@ if ! git diff --cached --name-only | grep -q "^ReactApp/"; then
 fi
 
 cd ReactApp
+# Note: Use fast-fail chaining (&&) to avoid running tsc if lint-staged fails, and preventing masking of errors.
 if command -v npm.cmd > /dev/null 2>&1; then
-  npx.cmd lint-staged
-  npx.cmd tsc
+  npx.cmd lint-staged && npx.cmd tsc
 else
-  npx lint-staged
-  npx tsc
+  npx lint-staged && npx tsc
 fi
