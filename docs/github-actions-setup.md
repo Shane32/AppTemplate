@@ -81,11 +81,11 @@ GitHub environments allow you to configure environment-specific secrets and prot
 
 ## Configure Environment Variables
 
-You need to configure variables for each environment (Development and Production).
+You need to configure variables for each environment (Development and Production) for GitHub Actions.
 
 ### Required Variables
 
-For each environment, add the following variables:
+Within GitHub, for each environment, add the following variables:
 
 1. Navigate to **Settings** > **Environments**
 2. Click on the environment name (Development or Production)
