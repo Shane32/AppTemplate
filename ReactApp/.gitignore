@@ -29,3 +29,6 @@ dist-ssr
 /src/gql/graphql.ts
 *.g.ts
 /stats.html
+
+# Misc
+obj
