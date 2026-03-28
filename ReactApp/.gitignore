@@ -32,3 +32,4 @@ dist-ssr
 
 # Misc
 obj
+obj\\*
