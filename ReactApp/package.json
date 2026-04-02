@@ -58,7 +58,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --report-unused-disable-directives --fix",
+      "eslint --report-unused-disable-directives --fix --max-warnings 0",
       "prettier --write"
     ],
     "*.{md,json,js,jsx,css,scss,html}": "prettier --write"
