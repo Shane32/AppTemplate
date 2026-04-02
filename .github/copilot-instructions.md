@@ -21,7 +21,7 @@ If formatting changes are applied, include them in the same commit or pull reque
 - Do not consider the task complete if formatting or analyzer issues remain.
 - Ensure all modified files are properly formatted according to the repository’s configuration.
 
-## Pull Request Creation
+# Pull Request Creation
 
 - After completing a task that involves code changes, always create a pull request using the `create_pull_request` tool.
 - Do **not** create a pull request if the request was purely informational (e.g., asking a question, requesting a plan or analysis).
