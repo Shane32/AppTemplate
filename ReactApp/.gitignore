@@ -27,8 +27,8 @@ dist-ssr
 /src/gql/persisted-documents.json
 /src/gql/gql.ts
 /src/gql/graphql.ts
-schema.g.graphql
 *.g.ts
+schema.g.graphql
 /stats.html
 
 # Misc
