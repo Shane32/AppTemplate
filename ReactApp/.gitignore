@@ -28,6 +28,7 @@ dist-ssr
 /src/gql/gql.ts
 /src/gql/graphql.ts
 *.g.ts
+schema.g.graphql
 /stats.html
 
 # Misc
