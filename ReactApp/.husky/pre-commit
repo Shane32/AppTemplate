@@ -7,7 +7,7 @@ fi
 
 cd ReactApp
 # Note: Use fast-fail chaining (&&) to avoid running tsc if lint-staged fails, and preventing masking of errors.
-if command -v npm.cmd > /dev/null 2>&1; then
+if [ -n "$MSYSTEM" ]; then
   npx.cmd lint-staged && npx.cmd tsc
 else
   npx lint-staged && npx tsc
