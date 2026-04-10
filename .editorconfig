@@ -298,4 +298,5 @@ dotnet_diagnostic.IDE0290.severity = none
 [**/Migrations/*.cs]
 dotnet_diagnostic.IDE0053.severity = none
 dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.CA1825.severity = none
 dotnet_diagnostic.CA1861.severity = none
