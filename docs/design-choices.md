@@ -6,7 +6,7 @@ This document explains the key technology selections made in this application te
 
 ### React
 
-React 18.3+ is used as the UI framework.
+React 19.3 is used as the UI framework.
 
 **Rationale:**
 
@@ -16,21 +16,46 @@ React 18.3+ is used as the UI framework.
 - Strong performance with virtual DOM and concurrent features
 - Wide availability of developers familiar with React
 
+**Implementation Patterns:**
+
+- Uses the modern `createRoot` API with `StrictMode` enabled during development
+- Keeps rendering pure and cleans up subscriptions and asynchronous effects so components can safely remount
+- Uses event handlers for user actions and effects for synchronization with external systems
+- Lazy-loads optional development tools with `lazy()` and `Suspense`
+
+### React Router
+
+React Router 8.4 is used in declarative mode with `BrowserRouter`, `Routes`, and `Route`.
+
+**Rationale:**
+
+- Keeps routing straightforward for a client-rendered SPA with an existing GraphQL data layer
+- Provides typed navigation and nested route composition
+- Shares the application's authentication context across routed pages
+
 ### Vite
 
-Vite 5.4+ is used as the build tool and development server.
+Vite 8.3 is used as the build tool and development server.
 
 **Rationale:**
 
 - Lightning-fast hot module replacement (HMR) during development
-- Optimized production builds using Rollup
+- Optimized production builds using Rolldown
 - Native ES modules support for faster development experience
 - Simple configuration with sensible defaults
 - Excellent TypeScript support out of the box
 
+**Implementation Details:**
+
+- Uses the supported React plugin and Sass's modern compiler API
+- Builds static assets for the existing ASP.NET Core deployment
+- Checks application and tooling types before bundling; TypeScript does not emit JavaScript next to source files
+
 ### TypeScript
 
-TypeScript 5.9+ is used throughout the frontend codebase.
+TypeScript 6 is used throughout the frontend codebase.
+
+The dependency deliberately uses `~6.0.3`, the latest compiler series supported by both GraphQLSP and typescript-eslint. This accepts TypeScript 6.0 patch updates while avoiding TypeScript 7, which is outside their supported version ranges.
 
 **Rationale:**
 
@@ -39,6 +64,8 @@ TypeScript 5.9+ is used throughout the frontend codebase.
 - Self-documenting code through type annotations
 - Seamless integration with GraphQL code generation for end-to-end type safety
 - Industry standard for modern JavaScript development
+
+Application and tooling configuration have separate TypeScript projects, connected through project references. `npm run typecheck` runs `tsc -b` so both are checked; Vite performs the actual JavaScript build.
 
 ### GraphQL Code Generation
 
@@ -56,7 +83,8 @@ GraphQL Code Generator (`@graphql-codegen/cli`) with custom near-operation-file 
 
 - Uses the backend's introspection schema from approval tests as the source of truth
 - Generates types in `.g.ts` files next to their corresponding `.queries.ts` files
-- Runs automatically during development via watch mode
+- Generates types before starting the development server, then updates them through watch mode
+- Uses `codegen:production` for builds to replace GraphQL documents with persisted hashes matching the backend whitelist
 - See [`codegen.ts`](../ReactApp/codegen.ts) for configuration
 
 ### No Server-Side Rendering (SSR)
@@ -309,6 +337,8 @@ Husky 9.1+ is used for Git hooks in the frontend.
 - Linting with ESLint
 - TypeScript compilation checks
 - Prevents broken code from entering the repository
+
+ESLint 10 uses a flat configuration with `@eslint-react/eslint-plugin`, TypeScript, React Hooks, and Fast Refresh rules. The pre-commit hook runs lint-staged followed by the same TypeScript project checks used by the build.
 
 ### GitHub Actions for CI/CD
 

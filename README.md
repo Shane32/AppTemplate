@@ -24,9 +24,10 @@ This repository provides a production-ready template for building full-stack app
 
 ### Frontend Stack
 
-- [React 18](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vitejs.dev/)
+- [React 19.3](https://react.dev/)
+- [React Router 8.4](https://reactrouter.com/) (declarative SPA routing)
+- [TypeScript 6](https://www.typescriptlang.org/)
+- [Vite 8.3](https://vite.dev/)
 - [GraphQL Code Generator](https://the-guild.dev/graphql/codegen)
 - [@shane32/graphql](https://www.github.com/shane32/graphql) (GraphQL client)
 - [@shane32/msoauth](https://www.github.com/shane32/msoauth) (Microsoft OAuth)
@@ -36,8 +37,8 @@ This repository provides a production-ready template for building full-stack app
 
 - [Visual Studio 2026](https://visualstudio.microsoft.com/) (for backend)
 - [VS Code](https://code.visualstudio.com/) (for frontend)
-- [Node.js 22](https://nodejs.org/)
-- [npm 10](https://www.npmjs.com/)
+- [Node.js 24 LTS](https://nodejs.org/) (Node.js 22.22+ is also supported)
+- [npm 10 or 11](https://www.npmjs.com/)
 
 See the [Design Choices](docs/design-choices.md) document for detailed rationale behind these technology selections.
 
@@ -103,7 +104,6 @@ This template may be overkill for:
 1. Click the "Use this template" button in GitHub to create a new repository from this template
 
 2. Clone your new repository and open the solution in Visual Studio
-
    - Rename the solution file to your desired name
    - Note: The individual project names (**AppDb**, **AppServer**, etc.) can be left as-is to simplify the setup process
 
@@ -111,7 +111,7 @@ This template may be overkill for:
 
    ```bash
    cd ReactApp
-   npm install
+   npm ci
    ```
 
 ### Running the Application
@@ -124,7 +124,6 @@ This template may be overkill for:
    ```
 
 2. Start the backend:
-
    - Set **AppServer** as the startup project in Visual Studio
    - Change the launch profile to **IIS Express**
    - Press F5 or click the Run button
@@ -134,17 +133,28 @@ This template may be overkill for:
    - This URL will proxy the SPA through Vite which runs at http://localhost:5173
    - Changes to the frontend will be automatically reloaded
 
+### Frontend Quality Checks and Builds
+
+Run these commands from `ReactApp`:
+
+```bash
+npm run codegen
+npm run lint
+npm run typecheck
+npm run build
+```
+
+GraphQL code generation uses the checked-in schema from the backend's introspection approval test, so these checks do not require a running backend. Type checking covers both application code and tooling configuration through TypeScript project references. `npm run build` generates persisted GraphQL documents, checks TypeScript, and produces the SPA in `ReactApp/dist`. CI and deployment use `npm run build-ci`, an alias for the same production build.
+
 ### Working with Production Backend
 
 To work on the frontend using a production backend:
 
 1. **Configure Azure App Registration**:
-
    - Add `http://localhost:5173/oauth/callback` as a redirect URI in your Azure App Registration
    - See [Application Authentication Setup](docs/azure-authentication-setup.md) for details
 
 2. **Configure CORS on Production Server**:
-
    - Add `http://localhost:5173` to the allowed origins in your production server's CORS policy
    - This is typically configured in `AppServer/Startup.cs` or via Azure Web App configuration
 

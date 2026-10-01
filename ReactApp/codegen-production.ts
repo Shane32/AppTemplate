@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 import type { Types } from "@graphql-codegen/plugin-helpers";
 import { parse } from "graphql";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import config from "./codegen";
 
 const gqlOutput = config.generates["./src/gql/"] as Types.ConfiguredOutput;

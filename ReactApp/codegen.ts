@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
-import * as path from "path";
+import { fileURLToPath } from "node:url";
 
-const schemaUrl = path.resolve(__dirname, "../Tests/Infrastructure/ServerTests.Introspection.approved.graphql");
+const schemaUrl = fileURLToPath(new URL("../Tests/Infrastructure/ServerTests.Introspection.approved.graphql", import.meta.url));
 
 const config: CodegenConfig = {
   schema: [{ [schemaUrl]: { handleAsSDL: true } }],
@@ -16,6 +16,8 @@ const config: CodegenConfig = {
       plugins: ["@shane32/graphql-codegen-near-operation-file-plugin"],
       config: {
         documentMode: "string",
+        useTypeImports: true,
+        enumType: "const",
         scalars: {
           DateOnly: "string",
           DateTimeOffset: "string",

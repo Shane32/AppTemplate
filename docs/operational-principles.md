@@ -204,11 +204,10 @@ Profiles are configured in [`AppServer/Startup.cs`](../AppServer/Startup.cs#L88)
 
 ### 2. Pre-Commit Quality Checks
 
-The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that automatically runs quality checks before each commit, preventing code quality issues from entering the repository. The hook performs three checks:
+The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that runs when files under `ReactApp` are staged. The hook performs these checks:
 
-1. **[`pretty-quick`](../ReactApp/.husky/pre-commit#L2)** - Automatically reformats staged SPA files using Prettier, ensuring consistent code formatting
-2. **[`lint`](../ReactApp/.husky/pre-commit#L3)** - Runs ESLint to catch code quality issues, potential bugs, and style violations
-3. **[`tsc`](../ReactApp/.husky/pre-commit#L4)** - Compiles TypeScript to verify type safety and catch compilation errors
+1. **lint-staged** - Runs ESLint with fixes on staged TypeScript files and formats staged frontend files with Prettier
+2. **TypeScript project checks** - Runs `npm run typecheck` to check application and tooling configuration without emitting JavaScript
 
 This means:
 
@@ -216,6 +215,8 @@ This means:
 - Linting errors must be resolved before code can be committed
 - TypeScript compilation errors prevent commits, ensuring type safety
 - All committed code meets quality standards without manual intervention
+
+ESLint's flat configuration checks React Hooks and Fast Refresh patterns. The application uses `StrictMode` during development, so effects must release subscriptions and ignore stale asynchronous results when components unmount or effects rerun.
 
 **Note:** C# code formatting is enforced during CI/CD builds via the [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) [`build-check.yml`](../.github/workflows/build_check.yml#L12) workflow, which runs `dotnet format --verify-no-changes` to ensure consistent formatting across the backend codebase.
 

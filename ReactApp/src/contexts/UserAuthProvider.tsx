@@ -1,9 +1,10 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useQuery } from "@shane32/graphql";
 import { useAuth } from "@shane32/msoauth";
 import { MeDocument } from "./UserAuthProvider.queries.g";
-import { Role } from "../gql/graphql";
-import { UserAuthContext, UserAuthContextType } from "./UserAuthContext";
+import type { Role } from "../gql/graphql";
+import { UserAuthContext } from "./UserAuthContext";
+import type { UserAuthContextType } from "./UserAuthContext";
 
 interface UserAuthProviderProps {
   children: ReactNode;
@@ -41,5 +42,5 @@ export function UserAuthProvider({ children }: UserAuthProviderProps) {
     },
   };
 
-  return <UserAuthContext.Provider value={contextValue}>{children}</UserAuthContext.Provider>;
+  return <UserAuthContext value={contextValue}>{children}</UserAuthContext>;
 }

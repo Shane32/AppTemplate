@@ -1,6 +1,6 @@
 import WelcomeName from "./WelcomeName";
-import { Link, useLocation } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { Link, useLocation } from "react-router";
+import { use, useEffect, useEffectEvent } from "react";
 import { Container, Navbar, NavDropdown } from "react-bootstrap";
 import NavbarContext from "react-bootstrap/NavbarContext";
 import { appName } from "../App";
@@ -61,12 +61,15 @@ const NavBar = ({ hidePaths }: { hidePaths?: boolean }) => {
 };
 
 function NavbarAutoClose() {
-  const context = useContext(NavbarContext);
+  const context = use(NavbarContext);
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  const closeNavbar = useEffectEvent(() => {
     if (context?.expanded) context?.onToggle();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+
+  useEffect(() => {
+    closeNavbar();
   }, [pathname]);
 
   return null;
