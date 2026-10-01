@@ -124,7 +124,7 @@ The template includes pre-configured GitHub Actions workflows in `.github/workfl
 
 These workflows use reusable workflows from [Shane32/SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for standardized build and deployment processes.
 
-Frontend jobs select Node.js from `ReactApp/package.json` and install the committed dependency versions with `npm ci`. Pull request checks run ESLint and Prettier separately from the production frontend build. The `build-ci` script generates persisted GraphQL documents, checks the application and tooling TypeScript projects, and bundles the SPA with Vite. Code generation reads the checked-in introspection approval schema, so a running backend is not required for frontend checks or builds.
+Frontend jobs select Node.js from `engines.node` in `ReactApp/package.json` and install dependencies with `npm ci`. They use `build-ci`, an alias for the production `build` script.
 
 ## Test Your Setup
 

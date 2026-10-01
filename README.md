@@ -144,7 +144,7 @@ npm run typecheck
 npm run build
 ```
 
-GraphQL code generation uses the checked-in schema from the backend's introspection approval test, so these checks do not require a running backend. Type checking covers both application code and tooling configuration through TypeScript project references. `npm run build` generates persisted GraphQL documents, checks TypeScript, and produces the SPA in `ReactApp/dist`. CI and deployment use `npm run build-ci`, an alias for the same production build.
+Code generation reads the checked-in introspection schema, so these commands do not require a running backend. `npm run build` generates persisted GraphQL documents and writes the production SPA to `ReactApp/dist`.
 
 ### Working with Production Backend
 

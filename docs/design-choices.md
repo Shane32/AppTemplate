@@ -16,22 +16,11 @@ React 19.3 is used as the UI framework.
 - Strong performance with virtual DOM and concurrent features
 - Wide availability of developers familiar with React
 
-**Implementation Patterns:**
-
-- Uses the modern `createRoot` API with `StrictMode` enabled during development
-- Keeps rendering pure and cleans up subscriptions and asynchronous effects so components can safely remount
-- Uses event handlers for user actions and effects for synchronization with external systems
-- Lazy-loads optional development tools with `lazy()` and `Suspense`
+StrictMode reruns effects during development. Authentication callbacks must avoid repeating token exchanges, and other effects must clean up pending work.
 
 ### React Router
 
-React Router 8.4 is used in declarative mode with `BrowserRouter`, `Routes`, and `Route`.
-
-**Rationale:**
-
-- Keeps routing straightforward for a client-rendered SPA with an existing GraphQL data layer
-- Provides typed navigation and nested route composition
-- Shares the application's authentication context across routed pages
+React Router 8.4 is used in declarative mode for client-side navigation, with the existing GraphQL client managing data fetching.
 
 ### Vite
 
@@ -45,17 +34,11 @@ Vite 8.3 is used as the build tool and development server.
 - Simple configuration with sensible defaults
 - Excellent TypeScript support out of the box
 
-**Implementation Details:**
-
-- Uses the supported React plugin and Sass's modern compiler API
-- Builds static assets for the existing ASP.NET Core deployment
-- Checks application and tooling types before bundling; TypeScript does not emit JavaScript next to source files
-
 ### TypeScript
 
 TypeScript 6 is used throughout the frontend codebase.
 
-The dependency deliberately uses `~6.0.3`, the latest compiler series supported by both GraphQLSP and typescript-eslint. This accepts TypeScript 6.0 patch updates while avoiding TypeScript 7, which is outside their supported version ranges.
+TypeScript stays on `~6.0.3` to match the compiler versions supported by GraphQLSP and typescript-eslint.
 
 **Rationale:**
 
@@ -65,7 +48,7 @@ The dependency deliberately uses `~6.0.3`, the latest compiler series supported 
 - Seamless integration with GraphQL code generation for end-to-end type safety
 - Industry standard for modern JavaScript development
 
-Application and tooling configuration have separate TypeScript projects, connected through project references. `npm run typecheck` runs `tsc -b` so both are checked; Vite performs the actual JavaScript build.
+[`tsconfig.app.json`](../ReactApp/tsconfig.app.json) configures browser code, and [`tsconfig.node.json`](../ReactApp/tsconfig.node.json) configures Node.js tooling. `npm run typecheck` checks both projects.
 
 ### GraphQL Code Generation
 
@@ -337,8 +320,6 @@ Husky 9.1+ is used for Git hooks in the frontend.
 - Linting with ESLint
 - TypeScript compilation checks
 - Prevents broken code from entering the repository
-
-ESLint 10 uses a flat configuration with `@eslint-react/eslint-plugin`, TypeScript, React Hooks, and Fast Refresh rules. The pre-commit hook runs lint-staged followed by the same TypeScript project checks used by the build.
 
 ### GitHub Actions for CI/CD
 

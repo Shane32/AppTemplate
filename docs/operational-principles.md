@@ -216,8 +216,6 @@ This means:
 - TypeScript compilation errors prevent commits, ensuring type safety
 - All committed code meets quality standards without manual intervention
 
-ESLint's flat configuration checks React Hooks and Fast Refresh patterns. The application uses `StrictMode` during development, so effects must release subscriptions and ignore stale asynchronous results when components unmount or effects rerun.
-
 **Note:** C# code formatting is enforced during CI/CD builds via the [SharedWorkflows](https://github.com/Shane32/SharedWorkflows) [`build-check.yml`](../.github/workflows/build_check.yml#L12) workflow, which runs `dotnet format --verify-no-changes` to ensure consistent formatting across the backend codebase.
 
 **Alternative:** To bypass pre-commit hooks temporarily (not recommended), use `git commit --no-verify`. To disable permanently, remove the `.husky` directory, though this will reduce code quality enforcement.
