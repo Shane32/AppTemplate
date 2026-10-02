@@ -1,27 +1,23 @@
 import { Container, Spinner, Button, Alert } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
 
 export function OAuthRedirect() {
   const { authManager } = useAuth();
-  const navigate = useNavigate();
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const callbackUrl = window.location.href;
     void authManager.handleRedirect().then(
       () => {
-        if (window.location.href === callbackUrl) {
-          void navigate("/", { replace: true });
-        }
+        console.error("No redirect occurred");
+        setError(new Error("An unknown error occurred"));
       },
       (err: unknown) => {
         console.error("Failure in handleRedirect", err);
         setError(err instanceof Error ? err : new Error("An unknown error occurred"));
       },
     );
-  }, [authManager, navigate]);
+  }, [authManager]);
 
   const handleRetry = () => {
     void authManager.login("/");
