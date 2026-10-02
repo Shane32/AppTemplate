@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@shane32/graphql": "^6.0.0",
-    "@shane32/msoauth": "^3.0.1",
+    "@shane32/msoauth": "^3.0.2",
     "bootstrap": "^5.3.8",
     "graphiql": "^5.4.0",
     "graphql": "^16.12.0",
