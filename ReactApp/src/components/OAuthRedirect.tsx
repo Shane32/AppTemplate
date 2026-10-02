@@ -7,7 +7,7 @@ export function OAuthRedirect() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    void authManager.handleRedirect().then(
+    authManager.handleRedirect().then(
       () => {
         console.error("No redirect occurred");
         setError(new Error("An unknown error occurred"));
@@ -20,7 +20,7 @@ export function OAuthRedirect() {
   }, [authManager]);
 
   const handleRetry = () => {
-    void authManager.login("/");
+    authManager.login("/");
   };
 
   if (error) {
