@@ -1,43 +1,31 @@
 import { Container, Spinner, Button, Alert } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
 
 export function OAuthRedirect() {
   const { authManager } = useAuth();
-  const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const callbackUrl = pathname + search + hash;
-  const [failure, setFailure] = useState<{ url: string; error: Error } | null>(null);
-  const error = failure?.url === callbackUrl ? failure.error : null;
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let active = true;
-    const isCurrentCallback = () => active && window.location.pathname + window.location.search + window.location.hash === callbackUrl;
-
+    const callbackUrl = window.location.href;
     void authManager.handleRedirect().then(
       () => {
-        // The auth manager normally restores the original URL. If none was
-        // stored, leave the callback page after a successful sign in.
-        if (isCurrentCallback()) {
+        if (window.location.href === callbackUrl) {
           void navigate("/", { replace: true });
         }
       },
       (err: unknown) => {
-        if (isCurrentCallback()) {
-          console.error("Failure in handleRedirect", err);
-          setFailure({
-            url: callbackUrl,
-            error: err instanceof Error ? err : new Error("An unknown error occurred"),
-          });
-        }
+        console.error("Failure in handleRedirect", err);
+        setError(err instanceof Error ? err : new Error("An unknown error occurred"));
       },
     );
+  }, [authManager, navigate]);
 
-    return () => {
-      active = false;
-    };
-  }, [authManager, callbackUrl, navigate]);
+  const handleRetry = () => {
+    void authManager.login("/");
+  };
 
   if (error) {
     return (
@@ -45,8 +33,8 @@ export function OAuthRedirect() {
         <Alert variant="danger" className="mb-4">
           Failed to complete sign in: {error.message || "An unknown error occurred"}
         </Alert>
-        <Button variant="primary" onClick={() => void navigate("/", { replace: true })}>
-          Back to Login
+        <Button variant="primary" onClick={handleRetry}>
+          Try Signing In Again
         </Button>
       </Container>
     );
