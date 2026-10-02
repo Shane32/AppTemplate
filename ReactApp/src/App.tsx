@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 import { PageLayout } from "./components/PageLayout";
 import { Suspense, lazy } from "react";
 import NotFound from "./pages/NotFound";

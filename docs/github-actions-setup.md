@@ -124,6 +124,8 @@ The template includes pre-configured GitHub Actions workflows in `.github/workfl
 
 These workflows use reusable workflows from [Shane32/SharedWorkflows](https://github.com/Shane32/SharedWorkflows) for standardized build and deployment processes.
 
+Frontend jobs select Node.js from `engines.node` in `ReactApp/package.json` and install dependencies with `npm ci`. They use `build-ci`, an alias for the production `build` script.
+
 ## Test Your Setup
 
 ### Test Pull Request Build

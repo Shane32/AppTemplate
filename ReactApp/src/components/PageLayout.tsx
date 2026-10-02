@@ -2,9 +2,10 @@ import { Container, Spinner } from "react-bootstrap";
 import ErrorDisplay from "./errors/ErrorDisplay";
 import NavBar, { EmptyNavBar } from "./NavBar";
 import useAuth from "../hooks/useAuth";
+import type { ReactNode } from "react";
 
 interface IProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export const PageLayout = ({ children }: IProps) => {

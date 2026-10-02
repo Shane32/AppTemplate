@@ -1,7 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
-const NotFound: React.FC = () => {
+const NotFound = () => {
   return (
     <div style={{ textAlign: "center", padding: "50px" }}>
       <h1 style={{ color: "red" }}>404 - Not Found</h1>

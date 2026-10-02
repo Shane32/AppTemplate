@@ -1,9 +1,10 @@
 import { Alert, Button } from "react-bootstrap";
+import type { ReactNode } from "react";
 
 interface IProps {
   onClick?: () => void;
   buttonTitle?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

@@ -6,7 +6,7 @@ This document explains the key technology selections made in this application te
 
 ### React
 
-React 18.3+ is used as the UI framework.
+React 19.3 is used as the UI framework.
 
 **Rationale:**
 
@@ -16,21 +16,29 @@ React 18.3+ is used as the UI framework.
 - Strong performance with virtual DOM and concurrent features
 - Wide availability of developers familiar with React
 
+StrictMode reruns effects during development. Authentication callbacks must avoid repeating token exchanges, and other effects must clean up pending work.
+
+### React Router
+
+React Router 8.4 is used in declarative mode for client-side navigation, with the existing GraphQL client managing data fetching.
+
 ### Vite
 
-Vite 5.4+ is used as the build tool and development server.
+Vite 8.3 is used as the build tool and development server.
 
 **Rationale:**
 
 - Lightning-fast hot module replacement (HMR) during development
-- Optimized production builds using Rollup
+- Optimized production builds using Rolldown
 - Native ES modules support for faster development experience
 - Simple configuration with sensible defaults
 - Excellent TypeScript support out of the box
 
 ### TypeScript
 
-TypeScript 5.9+ is used throughout the frontend codebase.
+TypeScript 6 is used throughout the frontend codebase.
+
+TypeScript stays on `~6.0.3` to match the compiler versions supported by GraphQLSP and typescript-eslint.
 
 **Rationale:**
 
@@ -39,6 +47,8 @@ TypeScript 5.9+ is used throughout the frontend codebase.
 - Self-documenting code through type annotations
 - Seamless integration with GraphQL code generation for end-to-end type safety
 - Industry standard for modern JavaScript development
+
+[`tsconfig.app.json`](../ReactApp/tsconfig.app.json) configures browser code, and [`tsconfig.node.json`](../ReactApp/tsconfig.node.json) configures Node.js tooling. `npm run typecheck` checks both projects.
 
 ### GraphQL Code Generation
 
@@ -56,7 +66,8 @@ GraphQL Code Generator (`@graphql-codegen/cli`) with custom near-operation-file 
 
 - Uses the backend's introspection schema from approval tests as the source of truth
 - Generates types in `.g.ts` files next to their corresponding `.queries.ts` files
-- Runs automatically during development via watch mode
+- Generates types before starting the development server, then updates them through watch mode
+- Uses `codegen:production` for builds to replace GraphQL documents with persisted hashes matching the backend whitelist
 - See [`codegen.ts`](../ReactApp/codegen.ts) for configuration
 
 ### No Server-Side Rendering (SSR)

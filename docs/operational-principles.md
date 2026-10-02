@@ -204,11 +204,10 @@ Profiles are configured in [`AppServer/Startup.cs`](../AppServer/Startup.cs#L88)
 
 ### 2. Pre-Commit Quality Checks
 
-The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that automatically runs quality checks before each commit, preventing code quality issues from entering the repository. The hook performs three checks:
+The SPA uses a [`.husky/pre-commit`](../ReactApp/.husky/pre-commit) hook that runs when files under `ReactApp` are staged. The hook performs these checks:
 
-1. **[`pretty-quick`](../ReactApp/.husky/pre-commit#L2)** - Automatically reformats staged SPA files using Prettier, ensuring consistent code formatting
-2. **[`lint`](../ReactApp/.husky/pre-commit#L3)** - Runs ESLint to catch code quality issues, potential bugs, and style violations
-3. **[`tsc`](../ReactApp/.husky/pre-commit#L4)** - Compiles TypeScript to verify type safety and catch compilation errors
+1. **lint-staged** - Runs ESLint with fixes on staged TypeScript files and formats staged frontend files with Prettier
+2. **TypeScript project checks** - Runs `npm run typecheck` to check application and tooling configuration without emitting JavaScript
 
 This means:
 

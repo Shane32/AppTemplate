@@ -27,10 +27,12 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ReactApp/package.json
+          cache: npm
+          cache-dependency-path: ReactApp/package-lock.json
 
       - name: Install Node.js dependencies
         working-directory: ReactApp
-        run: npm install
+        run: npm ci
 
       - name: Run codegen
         working-directory: ReactApp

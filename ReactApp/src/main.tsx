@@ -1,7 +1,8 @@
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router";
 import { GraphQLClient, GraphQLContext } from "@shane32/graphql";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { OAuthRedirect } from "./components/OAuthRedirect";
@@ -58,20 +59,27 @@ const client = new GraphQLClient({
 authManager.addEventListener("login", () => client.resetStore());
 authManager.addEventListener("logout", () => client.resetStore());
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("The root element was not found");
+}
+
+const root = createRoot(rootElement);
 
 root.render(
-  <GraphQLContext.Provider value={{ client }}>
-    <AuthProvider authManager={authManager}>
-      <UserAuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/oauth/callback" element={<OAuthRedirect />} />
-            <Route path="/oauth/logout" element={<LogoutRedirect />} />
-            <Route path="/*" element={<App />} />
-          </Routes>
-        </BrowserRouter>
-      </UserAuthProvider>
-    </AuthProvider>
-  </GraphQLContext.Provider>,
+  <StrictMode>
+    <GraphQLContext value={{ client }}>
+      <AuthProvider authManager={authManager}>
+        <UserAuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/oauth/callback" element={<OAuthRedirect />} />
+              <Route path="/oauth/logout" element={<LogoutRedirect />} />
+              <Route path="/*" element={<App />} />
+            </Routes>
+          </BrowserRouter>
+        </UserAuthProvider>
+      </AuthProvider>
+    </GraphQLContext>
+  </StrictMode>,
 );

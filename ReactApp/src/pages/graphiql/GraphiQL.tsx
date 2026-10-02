@@ -1,50 +1,64 @@
-import { useEffect } from "react";
-import OriginalGraphiQL from "graphiql";
-import "graphiql/graphiql.css";
+import { useCallback, useEffect } from "react";
+import { GraphiQL as OriginalGraphiQL } from "graphiql";
+import type { GraphiQLProps } from "graphiql";
+import type { Environment } from "monaco-editor";
+import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker.js?worker";
+import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker.js?worker";
+import GraphQLWorker from "monaco-graphql/esm/graphql.worker.js?worker";
+import "graphiql/style.css";
 import useAuth from "../../hooks/useAuth";
 
+// This module is lazy loaded, so editor workers are only configured when the
+// GraphiQL page is opened. Vite emits the worker bundles as local assets.
+window.MonacoEnvironment = {
+  getWorker(_workerId, label) {
+    if (label === "graphql") return new GraphQLWorker();
+    if (label === "json") return new JsonWorker();
+    return new EditorWorker();
+  },
+} satisfies Environment;
+
 const GraphiQL = () => {
-  const authContext = useAuth();
+  const { authManager } = useAuth();
 
   useEffect(() => {
     const rootElem = document.getElementById("root");
-    if (rootElem) {
-      rootElem.style.height = "100vh";
-      rootElem.style.display = "flex";
-      rootElem.style.flexDirection = "column";
-    }
+    if (!rootElem) return;
+
+    const { height, display, flexDirection } = rootElem.style;
+    rootElem.style.height = "100vh";
+    rootElem.style.display = "flex";
+    rootElem.style.flexDirection = "column";
 
     return () => {
-      if (rootElem) {
-        rootElem.style.height = "";
-        rootElem.style.display = "";
-        rootElem.style.flexDirection = "";
-      }
+      rootElem.style.height = height;
+      rootElem.style.display = display;
+      rootElem.style.flexDirection = flexDirection;
     };
   }, []);
 
-  // Fetcher function using async/await for token retrieval and request execution
-  const fetcher = async (graphQLParams: unknown) => {
-    const token = await authContext.authManager.getIdToken(); // Fetch the token asynchronously
-    const response = await fetch(import.meta.env.VITE_GRAPHQL_URL, {
-      method: "post",
-      headers: {
-        /* eslint-disable */
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        /* eslint-enable */
-      },
-      body: JSON.stringify(graphQLParams),
-    });
+  const fetcher = useCallback<GraphiQLProps["fetcher"]>(
+    async (graphQLParams) => {
+      const token = await authManager.getIdToken();
+      const response = await fetch(import.meta.env.VITE_GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(graphQLParams),
+      });
 
-    if (response.status >= 200 && response.status < 300) {
-      return await response.json(); // Parse JSON response body
-    } else {
-      throw response; // Throw the response as an error if the status code is not OK
-    }
-  };
+      if (!response.ok) {
+        throw new Error(`GraphQL request failed: ${response.status} ${response.statusText}`);
+      }
 
-  // Render the GraphiQL interface with the custom fetcher
+      return response.json();
+    },
+    [authManager],
+  );
+
   return <OriginalGraphiQL fetcher={fetcher} />;
 };
 

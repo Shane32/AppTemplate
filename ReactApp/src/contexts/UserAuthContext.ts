@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import { MeQuery, Role } from "../gql/graphql";
-import { AuthManager } from "@shane32/msoauth";
-import { GraphQLError } from "@shane32/graphql";
+import type { MeQuery, Role } from "../gql/graphql";
+import type { AuthManager } from "@shane32/msoauth";
+import type { GraphQLError } from "@shane32/graphql";
 
 interface UserAuthContextType {
   user: MeQuery["me"] | null;

@@ -13,22 +13,24 @@ interface MSGraphUser {
 function Home() {
   const auth = useAuth();
   const info = auth.user;
+  const { authManager } = auth;
   const [users, setUsers] = useState<MSGraphUser[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("doc", Queries.TestQuery1Document);
-  const documentId = Queries.TestQuery1Document.__meta__?.hash;
-  if (documentId) console.log("hash", documentId.match(/^[0-9a-f]{64}$/) ? "sha256:" + documentId : documentId);
   const { data: meData } = useQuery(Queries.TestQuery1Document);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchUsers = async () => {
       try {
         // Get MS Graph access token
-        const token = await auth.authManager.getAccessToken();
+        const token = await authManager.getAccessToken();
+        if (controller.signal.aborted) return;
 
         // Fetch current user profile from MS Graph API
         const response = await fetch("https://graph.microsoft.com/v1.0/me", {
+          signal: controller.signal,
           headers: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             Authorization: `Bearer ${token}`,
@@ -41,17 +43,20 @@ function Home() {
           throw new Error(`Failed to fetch user profile: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data: MSGraphUser = await response.json();
+        if (controller.signal.aborted) return;
         setUsers([data]); // Wrap single user in array for consistent display
         setError(null);
       } catch (err) {
+        if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Failed to fetch users");
         console.error("Error fetching users:", err);
       }
     };
 
-    fetchUsers();
-  }, [auth]);
+    void fetchUsers();
+    return () => controller.abort();
+  }, [authManager]);
 
   return (
     <Container>
