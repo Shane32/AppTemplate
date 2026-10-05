@@ -9,7 +9,10 @@ concurrency:
 
 jobs:
   build-check:
-    uses: Shane32/SharedWorkflows/.github/workflows/build-check.yml@v2
+    uses: Shane32/SharedWorkflows/.github/workflows/build-check.yml@v3
+    permissions:
+      contents: read
+      pull-requests: write
     with:
       dotnet_folder: "."
       spa_folder: ReactApp

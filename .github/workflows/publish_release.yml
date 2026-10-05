@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    uses: Shane32/SharedWorkflows/.github/workflows/publish-app.yml@v2
+    uses: Shane32/SharedWorkflows/.github/workflows/publish-app.yml@v3
     permissions:
       contents: write
       id-token: write
