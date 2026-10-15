@@ -71,11 +71,11 @@ CREATE USER [user@domain.com] FROM EXTERNAL PROVIDER;
 ALTER ROLE db_owner ADD MEMBER [user@domain.com];
 ```
 
-To grant the web app database access, create its user-assigned runtime identity (e.g., `myapp-dev-runtime-identity`) and use that identity name in place of the email address. Grant `db_owner` permissions to allow automatic migrations to run. Attach this identity to the web app using [Azure Web App Setup](azure-webapp-setup.md). Database permissions belong to the runtime identity; the separate deployment identity (e.g., `myapp-dev-deploy-identity`) receives deployment permissions.
+To grant the web app database access, create its user-assigned runtime identity (e.g., `myapp-dev-runtime-identity`) and use that identity name in place of the email address. Grant `db_owner` permissions to allow automatic migrations to run. Attach this identity to the web app using [Azure Web App Setup](azure-webapp-setup.md).
 
 ## Configure Connection String
 
-Configure a passwordless connection string in your application settings. Use your development credentials locally and explicitly select the user-assigned runtime identity in deployed environments.
+The application will automatically use the managed identity to connect to the database. You'll need to configure the connection string in your application settings.
 
 ### Connection String Format
 
@@ -83,15 +83,7 @@ Configure a passwordless connection string in your application settings. Use you
 Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;
 ```
 
-Replace `your-server` with your SQL Server name and `your-database` with your database name. The `Authentication=Active Directory Default` setting uses Visual Studio credentials during local development.
-
-For the deployed web app, add the runtime identity's **Client ID** as `User Id` to select that user-assigned identity:
-
-```text
-Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;User Id=<runtime-identity-client-id>;
-```
-
-Replace `<runtime-identity-client-id>` with the client ID of `myapp-dev-runtime-identity` or `myapp-prod-runtime-identity`, as appropriate. Store this deployed connection string in the environment's Key Vault as `ConnectionStrings--AppDbContext`, or in the web app's application settings as `ConnectionStrings__AppDbContext`. Keep the local connection string free of the runtime identity's client ID so local development continues to use your own credentials.
+Replace `your-server` with your SQL Server name and `your-database` with your database name. The `Authentication=Active Directory Default` setting automatically uses Visual Studio credentials during local development and the web app's managed identity in production.
 
 ### Update Local Configuration
 
@@ -125,4 +117,4 @@ The database will be automatically initialized on first application run using En
 - Use Microsoft Entra ID authentication for enhanced security
 - The connection string uses `Authentication=Active Directory Default` to use your Azure credentials locally
 - Database schema is managed through Entity Framework migrations in the application
-- For production deployment, the web app's user-assigned runtime identity needs database permissions and its client ID in the deployed connection string (configured during [Azure Web App Setup](azure-webapp-setup.md))
+- For production deployment, the web app's user-assigned runtime identity needs database permissions (configured during [Azure Web App Setup](azure-webapp-setup.md))
