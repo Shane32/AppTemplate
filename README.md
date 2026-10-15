@@ -199,7 +199,7 @@ For first-time production setup, follow these guides in order:
 
 1. **[Azure Key Vault Setup](docs/azure-keyvault-setup.md)** (Optional) - Create Key Vault for storing secrets
 2. **[Azure Database Setup](docs/azure-database-setup.md)** - Create the SQL database and server
-3. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create the web app, enable its managed identity, and grant it access to the database and Key Vault
+3. **[Azure Web App Setup](docs/azure-webapp-setup.md)** - Create the web app, attach its user-assigned runtime identity, and grant that identity access to the database and Key Vault
 4. **[Application Authentication Setup](docs/azure-authentication-setup.md)** - Configure Microsoft Entra ID app registration for user authentication
 5. **[GitHub Actions Configuration](docs/github-actions-setup.md)** - Set up CI/CD pipelines for automated deployment
 
@@ -227,7 +227,7 @@ Alternatively, the template is compatible with any Entity Framework Core-support
 
 Azure Web App hosts your application in the cloud. The template is designed for deployment to Azure App Service on Linux with .NET 10.
 
-Create the Azure Web App, enable its system-assigned managed identity, and grant it permissions to access your database and Key Vault. The managed identity eliminates the need to store passwords or connection strings in configuration.
+Create the Azure Web App, attach a user-assigned runtime identity, grant that identity permissions to access your database and Key Vault, and configure the runtime identity's client ID in the web app's `AZURE_CLIENT_ID` application setting. The managed identity eliminates the need to store passwords or connection strings in configuration.
 
 For complete web app setup instructions, see the [Azure Web App Setup](docs/azure-webapp-setup.md) guide.
 
@@ -241,7 +241,7 @@ For complete authentication setup instructions, see the [Application Authenticat
 
 ### GitHub Actions (CI/CD)
 
-This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment. Deployment uses passwordless authentication via managed identities - no passwords or connection strings need to be stored in GitHub secrets.
+This template includes pre-configured GitHub Actions workflows for automated building, testing, and deployment. Deployment uses passwordless authentication via dedicated deployment managed identities - no passwords or connection strings need to be stored in GitHub secrets.
 
 **How It Works**:
 
