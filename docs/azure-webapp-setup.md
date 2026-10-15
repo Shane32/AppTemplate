@@ -25,6 +25,23 @@ Before starting this guide, ensure you have:
    - **Secure default hostname**: Off
 4. Click **Review + create**, then **Create**
 
+## Create Runtime Managed Identity
+
+Create a user-assigned managed identity for the running application. Use separate runtime and deployment identities for each environment:
+
+| Web app      | Runtime identity              | Deployment identity (GitHub Actions) |
+| ------------ | ----------------------------- | ------------------------------------ |
+| `myapp-dev`  | `myapp-dev-runtime-identity`  | `myapp-dev-deploy-identity`          |
+| `myapp-prod` | `myapp-prod-runtime-identity` | `myapp-prod-deploy-identity`         |
+
+1. In Azure Portal, search for **Managed Identities** and click **Create**
+2. Select the same subscription, resource group, and region as the web app
+3. Use the web app name with `-runtime-identity` appended (e.g., `myapp-dev-runtime-identity`)
+4. Click **Review + create**, then **Create**
+5. From the identity's **Overview** page, copy its **Client ID** for the application settings and database connection string below
+
+The runtime identity receives database and Key Vault permissions. Create the deployment identity separately using [GitHub Actions Configuration](github-actions-setup.md) and grant it deployment permissions.
+
 ## Configure Web App Settings
 
 After the web app is created:
@@ -33,20 +50,24 @@ After the web app is created:
 2. Go to **Configuration**:
    - Set **HTTP version** to **2.0**
 3. Go to **Identity**:
-   - Under **System assigned**, toggle to **On**
+   - Under **User assigned**, click **Add**
+   - Select the runtime identity (e.g., `myapp-dev-runtime-identity`) and click **Add**
+   - Leave **System assigned** set to **Off**
+4. Go to **Configuration** > **Application settings**:
+   - Add `AZURE_CLIENT_ID` with the runtime identity's **Client ID** (used for `DefaultAzureCredential`)
    - Click **Save**
 
 ## Grant Database Access to Web App
 
-The web app's managed identity needs permission to access the database. See [Azure Database Setup](azure-database-setup.md) for creating the database.
+The web app's user-assigned runtime identity needs permission to access the database. See [Azure Database Setup](azure-database-setup.md) for creating the database.
 
 1. Navigate to your SQL Database in Azure Portal
 2. Click **Query editor** and authenticate using Microsoft Entra authentication
-3. Execute the following SQL, replacing `myapp-dev` with your web app name:
+3. Execute the following SQL, replacing `myapp-dev-runtime-identity` with your runtime identity name:
 
 ```sql
-CREATE USER [myapp-dev] FROM EXTERNAL PROVIDER;
-ALTER ROLE db_owner ADD MEMBER [myapp-dev];
+CREATE USER [myapp-dev-runtime-identity] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_owner ADD MEMBER [myapp-dev-runtime-identity];
 ```
 
 The `db_owner` role is required to allow automatic migration of the database at application startup.
@@ -58,7 +79,7 @@ If using Azure Key Vault, grant the web app access to read secrets. See [Azure K
 1. Navigate to your key vault in Azure Portal
 2. Go to **Access control (IAM)** > **Add** > **Add role assignment**
 3. Select **Key Vault Secrets Officer** role
-4. Assign to **Managed identity** > **App Service** > select your web app
+4. Assign to **Managed identity** > **User-assigned managed identity** > select your runtime identity (e.g., `myapp-dev-runtime-identity`)
 5. Click **Review + assign**
 
 ## Configure Application Settings and Secrets
@@ -102,6 +123,7 @@ If you're not using Key Vault, configure any settings that differ from the devel
 
 ## Important Notes
 
-- The web app's system-assigned managed identity must be enabled before granting database or Key Vault permissions
+- Attach the user-assigned runtime identity to the web app and configure its client ID before starting the application
+- Use distinct runtime and deployment identities for each environment; assign database and Key Vault permissions to the runtime identity and deployment permissions to the deployment identity
 - Only configure application settings that differ from your development environment
 - Key Vault is recommended for storing sensitive configuration in production

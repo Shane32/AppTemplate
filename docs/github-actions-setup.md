@@ -9,9 +9,9 @@ Before starting this guide, ensure you have:
 - A GitHub repository created from this template
 - An Azure Web App created (see [Azure Web App Setup](azure-webapp-setup.md))
 
-## Create User Assigned Managed Identity
+## Create Deployment Managed Identity
 
-The user-assigned managed identity is used for GitHub Actions to authenticate and deploy to Azure.
+Create a user-assigned deployment identity for GitHub Actions to authenticate and deploy to Azure. Keep it separate from the web app's user-assigned runtime identity, which accesses the database and Key Vault (see [Azure Web App Setup](azure-webapp-setup.md#create-runtime-managed-identity)).
 
 1. In Azure Portal, search for **Managed Identities**
 2. Click **Create**
@@ -19,7 +19,7 @@ The user-assigned managed identity is used for GitHub Actions to authenticate an
    - **Subscription**: Same as the web app
    - **Resource Group**: Same as the web app
    - **Region**: Same as the web app
-   - **Name**: Use the web app name with `-identity` appended (e.g., `myapp-dev-identity`)
+   - **Name**: Use the web app name with `-deploy-identity` appended (e.g., `myapp-dev-deploy-identity` or `myapp-prod-deploy-identity`)
 4. Click **Review + create**, then **Create**
 
 ### Configure Federated Credentials
@@ -33,14 +33,14 @@ The user-assigned managed identity is used for GitHub Actions to authenticate an
    - **Repository**: Your repository name
    - **Entity type**: Environment
    - **Environment name**: `Development` or `Production` (must match GitHub environment name exactly)
-   - **Name**: Use the identity name with `-cred` appended (e.g., `myapp-dev-identity-cred`)
+   - **Name**: Use the deployment identity name with `-cred` appended (e.g., `myapp-dev-deploy-identity-cred`)
 5. Click **Add**
 
-**Note:** You'll need to create separate managed identities and federated credentials for each environment (Development and Production).
+**Note:** Create separate deployment identities and federated credentials for each environment (Development and Production), in addition to each environment's runtime identity. Attach only the runtime identity to the web app; configure GitHub federation on the deployment identity.
 
 ### Note Important IDs
 
-From the managed identity **Overview** page, note the following values (you'll need them for GitHub variables):
+From the deployment identity **Overview** page, note the following values (you'll need them for GitHub variables):
 
 - **Client ID** - needed for `AZURE_CLIENT_ID` variable
 - **Subscription ID** - needed for `AZURE_SUBSCRIPTION_ID` variable
@@ -92,12 +92,12 @@ Within GitHub, for each environment, add the following variables:
 3. Under **Environment variables**, click **Add variable**
 4. Add each of the following variables:
 
-| Variable Name           | Description                | Where to Find                 |
-| ----------------------- | -------------------------- | ----------------------------- |
-| `AZURE_TENANT_ID`       | Your Azure tenant ID       | Microsoft Entra ID > Overview |
-| `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID | Managed Identity > Overview   |
-| `AZURE_CLIENT_ID`       | Managed identity client ID | Managed Identity > Overview   |
-| `AZURE_WEBAPP_NAME`     | Your web app name          | Web App > Overview            |
+| Variable Name           | Description                   | Where to Find                  |
+| ----------------------- | ----------------------------- | ------------------------------ |
+| `AZURE_TENANT_ID`       | Your Azure tenant ID          | Microsoft Entra ID > Overview  |
+| `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID    | Managed Identity > Overview    |
+| `AZURE_CLIENT_ID`       | Deployment identity client ID | Deployment identity > Overview |
+| `AZURE_WEBAPP_NAME`     | Your web app name             | Web App > Overview             |
 
 ### Example Values
 
@@ -107,6 +107,8 @@ AZURE_SUBSCRIPTION_ID=87654321-4321-4321-4321-cba987654321
 AZURE_CLIENT_ID=abcdef12-3456-7890-abcd-ef1234567890
 AZURE_WEBAPP_NAME=myapp-dev
 ```
+
+The GitHub environment's `AZURE_CLIENT_ID` must identify `myapp-dev-deploy-identity` (or the production equivalent). The web app's application setting with the same name must identify `myapp-dev-runtime-identity`. Keep the two values separate when configuring deployments.
 
 ### Additional Variables
 
@@ -158,5 +160,5 @@ Frontend jobs select Node.js from `engines.node` in `ReactApp/package.json` and 
 ## Important Notes
 
 - The user-assigned managed identity must be in the same subscription as the web app for deployment to succeed
-- Create separate managed identities for development and production environments
+- Create separate runtime and deployment identities for each development and production environment
 - The federated credential environment name must exactly match the GitHub environment name (case-sensitive)
