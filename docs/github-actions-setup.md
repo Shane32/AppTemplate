@@ -95,7 +95,7 @@ Within GitHub, for each environment, add the following variables:
 | Variable Name           | Description                   | Where to Find                  |
 | ----------------------- | ----------------------------- | ------------------------------ |
 | `AZURE_TENANT_ID`       | Your Azure tenant ID          | Microsoft Entra ID > Overview  |
-| `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID    | Managed Identity > Overview    |
+| `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID    | Deployment Identity > Overview |
 | `AZURE_CLIENT_ID`       | Deployment identity client ID | Deployment identity > Overview |
 | `AZURE_WEBAPP_NAME`     | Your web app name             | Web App > Overview             |
 
