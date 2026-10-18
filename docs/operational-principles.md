@@ -37,7 +37,7 @@ Configuration loads in sequence: appsettings.json → user secrets → environme
 
 ### 4. Environment-Specific Credential Providers
 
-Azure Key Vault uses [`VisualStudioCredential`](../AppServer/Program.cs#L39) in debug mode for local development and [`DefaultAzureCredential`](../AppServer/Program.cs#L41) in production for managed identity authentication. Configure the web app's `AZURE_CLIENT_ID` application setting with its user-assigned runtime identity's client ID (e.g., `myapp-dev-runtime-identity`). Use a separate user-assigned deployment identity (e.g., `myapp-dev-deploy-identity`) for GitHub Actions, with that identity's client ID in the GitHub environment's `AZURE_CLIENT_ID` variable. This provides:
+Azure Key Vault uses [`VisualStudioCredential`](../AppServer/Program.cs#L39) in debug mode for local development and [`DefaultAzureCredential`](../AppServer/Program.cs#L41) in production for managed identity authentication. This provides:
 
 - Seamless local development with Visual Studio credentials
 - Secure production deployment with managed identities
