@@ -71,7 +71,7 @@ CREATE USER [user@domain.com] FROM EXTERNAL PROVIDER;
 ALTER ROLE db_owner ADD MEMBER [user@domain.com];
 ```
 
-To add a managed identity (such as your Azure Web App), use the managed identity name (e.g., `my-webapp`) in place of the email address and grant `db_owner` permissions to allow automatic migrations to run. For Azure Web Apps and Azure Function Apps, you must first enable the managed identity option in the Azure Portal before the identity can be added to the database.
+To grant the web app database access, create its user-assigned runtime identity (e.g., `myapp-dev-runtime-identity`) and use that identity name in place of the email address. Grant `db_owner` permissions to allow automatic migrations to run. Attach this identity to the web app using [Azure Web App Setup](azure-webapp-setup.md).
 
 ## Configure Connection String
 
@@ -117,4 +117,4 @@ The database will be automatically initialized on first application run using En
 - Use Microsoft Entra ID authentication for enhanced security
 - The connection string uses `Authentication=Active Directory Default` to use your Azure credentials locally
 - Database schema is managed through Entity Framework migrations in the application
-- For production deployment, the web app's managed identity will need database permissions (configured during [Azure Web App Setup](azure-webapp-setup.md))
+- For production deployment, the web app's user-assigned runtime identity needs database permissions (configured during [Azure Web App Setup](azure-webapp-setup.md))
