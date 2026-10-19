@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 
 namespace AppServer;
@@ -47,6 +48,10 @@ public class Program
         var startup = new Startup(builder.Configuration);
         startup.ConfigureServices(builder.Services);
         var app = builder.Build();
+#if !DEBUG
+        // Validate the existing bearer and runtime identity settings before serving requests.
+        _ = app.Services.GetRequiredService<TokenCredential>();
+#endif
         if (app.Environment.EnvironmentName != "Test") {
             await startup.RunInitializationTestsAsync(app.Services);
         }

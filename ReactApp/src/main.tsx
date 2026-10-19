@@ -10,8 +10,14 @@ import { LogoutRedirect } from "./components/LogoutRedirect";
 import { AuthProvider, AuthManager } from "@shane32/msoauth";
 import { UserAuthProvider } from "./contexts/UserAuthProvider.tsx";
 
+class TemplateAuthManager extends AuthManager {
+  protected override async getTokenEndpointUrl(grantType: string): Promise<string> {
+    return import.meta.env.PROD ? "/api/oauth/token" : super.getTokenEndpointUrl(grantType);
+  }
+}
+
 // Initialize AuthManager with Azure AD configuration
-const authManager = new AuthManager({
+const authManager = new TemplateAuthManager({
   clientId: import.meta.env.VITE_AZURE_CLIENT_ID,
   authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_TENANT_ID}/v2.0`,
   scopes: import.meta.env.VITE_AZURE_SCOPES,
