@@ -34,7 +34,7 @@ Before starting this guide, ensure you have:
 
    - Platform: **Single-page application (SPA)**
    - URI: `https://localhost:44323/oauth/callback` (development login callback)
-   - Note: Additional redirect URIs (development logout callback, production URLs, etc.) will be added in a following step
+   - The Azure development and production callbacks will be added under the **Web** platform later.
 
 4. Click **Register**
 
@@ -46,15 +46,7 @@ After creating the registration, configure additional settings:
 
 From the **Overview** page, copy the **Application (client) ID**. You'll need this for configuration.
 
-### 2. Configure Authentication
-
-1. Go to **Authentication** in the left menu
-2. Under **Implicit grant and hybrid flows**:
-   - ✅ Enable **Access tokens**
-   - ✅ Enable **ID tokens**
-3. Click **Save**
-
-### 3. Configure Token Claims
+### 2. Configure Token Claims
 
 1. Go to **Token configuration** in the left menu
 2. Click **Add optional claim**
@@ -66,18 +58,33 @@ From the **Overview** page, copy the **Application (client) ID**. You'll need th
 5. Click **Add**
 6. If prompted about Microsoft Graph permissions, click **Yes, add the required Graph permission**
 
-### 4. Add Additional Redirect URIs
+### 3. Add Additional Redirect URIs
 
-1. Go to **Authentication**
-2. Under **Single-page application**, click **Add URI**
-3. Add the following redirect URIs:
-   - Development logout: `https://localhost:44323/oauth/logout`
-   - Production login: `https://your-app.azurewebsites.net/oauth/callback` (replace `your-app.azurewebsites.net` with your actual production URL)
-   - Production logout: `https://your-app.azurewebsites.net/oauth/logout` (replace `your-app.azurewebsites.net` with your actual production URL)
-   - (Optional) If developers need to work on the frontend locally while connecting to a production backend:
-     - `http://localhost:5173/oauth/callback`
-     - `http://localhost:5173/oauth/logout`
-4. Click **Save**
+1. Go to **Authentication**.
+2. Under **Single-page application**, add the local logout URI: `https://localhost:44323/oauth/logout`.
+3. If developers run the frontend directly on Vite, also add `http://localhost:5173/oauth/callback` and `http://localhost:5173/oauth/logout` under **Single-page application**.
+4. Add a **Web** platform and register the Azure development site's `/oauth/callback` and `/oauth/logout` URIs, for example `https://your-dev-app.azurewebsites.net/oauth/callback` and `https://your-dev-app.azurewebsites.net/oauth/logout`.
+5. Under **Web**, register the equivalent URIs for the Azure production site, for example `https://your-prod-app.azurewebsites.net/oauth/callback` and `https://your-prod-app.azurewebsites.net/oauth/logout`. Replace these example hosts with your actual deployment hosts.
+6. Click **Save**.
+
+### 4. Configure Federated Credential
+
+Use the existing user-assigned runtime identity created and attached in [Azure Web App Setup](azure-webapp-setup.md#create-runtime-managed-identity). This identity handles database, Key Vault, and OAuth access; GitHub Actions uses the separate deployment identity. The runtime identity and app registration must belong to the same Microsoft Entra tenant.
+
+1. From the runtime identity's **Overview** page, note its **Client ID** and **Object (principal) ID**.
+2. On the app registration, go to **Certificates & secrets** > **Federated credentials** > **Add credential**.
+3. Select the **Managed Identity** scenario, then select the existing runtime identity (e.g., `myapp-dev-runtime-identity`).
+4. Verify the values below, enter a credential name (e.g., `myapp-dev-runtime-identity-cred`), and click **Add**.
+
+The federated credential must use these values:
+
+| Field | Value |
+| ----- | ----- |
+| Issuer | `https://login.microsoftonline.com/<tenant-guid>/v2.0` using the identity's actual tenant GUID, including when the application uses `common` |
+| Subject | Runtime identity's **Object (principal) ID** |
+| Audience | `api://AzureADTokenExchange` |
+
+Repeat for each environment's runtime identity. A shared app registration needs a federated credential for each runtime identity. See [Microsoft's managed-identity federation guide](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-config-app-trust-managed-identity).
 
 ## Configure Application Settings
 
@@ -87,7 +94,7 @@ Update your application configuration with the app registration details.
 
 Update `AppServer/appsettings.json` with one of the following configurations:
 
-**Multi-tenant configuration** (allows any Microsoft account):
+**Multi-tenant configuration** (allows account types selected in the app registration):
 
 ```json
 {
@@ -96,7 +103,7 @@ Update `AppServer/appsettings.json` with one of the following configurations:
     "Schemes": {
       "Bearer": {
         "ValidAudience": "your-client-id-here",
-        "Authority": "https://login.microsoftonline.com/common",
+        "Authority": "https://login.microsoftonline.com/common/v2.0",
         "ValidateIssuer": false
       }
     }
@@ -113,7 +120,7 @@ Update `AppServer/appsettings.json` with one of the following configurations:
     "Schemes": {
       "Bearer": {
         "ValidAudience": "your-client-id-here",
-        "Authority": "https://login.microsoftonline.com/your-tenant-id-here",
+        "Authority": "https://login.microsoftonline.com/your-tenant-id-here/v2.0",
         "ValidateIssuer": true
       }
     }
@@ -141,42 +148,36 @@ VITE_AZURE_SCOPES=openid profile offline_access email
 
 ## Multi-Environment Setup
 
-Add redirect URIs for all environments to your single app registration:
+You can use a single app registration across all environments, with **SPA** redirect URIs for local development, **Web** redirect URIs for Azure deployments, and a federated credential for each runtime managed identity.
 
-1. Go to **Authentication** in your app registration
-2. Under **Single-page application**, add redirect URIs for each environment:
-   - Development: `https://localhost:44323/oauth/callback` and `https://localhost:44323/oauth/logout`
-   - Production: `https://your-app.azurewebsites.net/oauth/callback` and `https://your-app.azurewebsites.net/oauth/logout`
-3. If developers need to work locally with a production backend, also add:
-   - `http://localhost:5173/oauth/callback` and `http://localhost:5173/oauth/logout`
-4. Click **Save**
-
-This approach uses a single app registration for all environments, simplifying management while maintaining security.
+If you use separate app registrations, configure each environment's frontend and backend with the matching client and tenant IDs.
 
 ## Security Considerations
 
 ### Authentication Flow
 
-This template uses the **Authorization Code Flow with PKCE** (Proof Key for Code Exchange) for authentication, implemented via the [@shane32/msoauth](https://github.com/Shane32/msoauth) library. When a user logs in, they are redirected to Microsoft's login page, and upon successful authentication, redirected back to the application with an authorization code. The application then exchanges this code for access tokens and refresh tokens using a secure fetch request.
+This template uses the **Authorization Code Flow with PKCE** (Proof Key for Code Exchange) for authentication, implemented via the [@shane32/msoauth](https://github.com/Shane32/msoauth) library. When a user logs in, they are redirected to Microsoft's login page, and upon successful authentication, redirected back to the application with an authorization code. The application then exchanges this code for ID, access, and refresh tokens using a secure fetch request.
+
+In local development, token exchanges and refreshes go directly to Microsoft. Azure deployments use the backend `/api/oauth/token` proxy with managed identity authentication to obtain longer-lived refresh tokens. The browser still receives and stores the Microsoft tokens.
 
 **Key characteristics of this flow:**
 
-- **No iframes or hidden windows**: All authentication happens through full-page redirects, providing better security and user experience
-- **Refresh token storage**: Refresh tokens are stored in browser local storage and used to obtain new access tokens when they expire, eliminating the need for repeated user logins
-- **PKCE protection**: The authorization code exchange is protected by PKCE, preventing interception attacks even if the authorization code is compromised
+- **No iframes or hidden windows**: Interactive authentication happens through full-page redirects, avoiding reliance on hidden authentication windows
+- **Refresh token storage**: Refresh tokens are stored in browser local storage and used to obtain new tokens when they expire, reducing the need for repeated user logins
+- **Refresh token lifetime**: Defaults to 24 hours for local development (SPA) and 90 days for Azure deployments (Web), subject to tenant policies and revocation
+- **PKCE protection**: The authorization code exchange is protected by PKCE, preventing redemption of an intercepted code without the code verifier
 
 **Security implications:**
 
-Storing refresh tokens in local storage provides a balance between security and user experience. While local storage is accessible to JavaScript (including any XSS vulnerabilities), this approach:
+Storing refresh tokens in local storage provides a balance between security and user experience. Local storage is accessible to JavaScript, including any cross-site scripting (XSS) vulnerabilities, so script injection defenses remain essential. PKCE protects the authorization code exchange but does not protect tokens stolen from browser storage. This approach:
 
 - Eliminates the need for silent authentication flows using hidden iframes, which have been increasingly restricted by browsers
 - Provides a seamless user experience with automatic token refresh
-- Works reliably across all modern browsers without third-party cookie dependencies
-- Keeps the server as a completely stateless REST API, supporting microservice-type architectures where the API can be independently scaled or deployed
-- Enables response compression for improved performance (response compression is enabled in this template and should be disabled when using cookie-based authentication due to BREACH attack vulnerabilities)
-- Is explicitly supported by Microsoft's authentication libraries and recommended for single-page applications
+- Works without third-party cookie dependencies
+- Keeps the server as a completely stateless REST API, supporting microservice-type architectures where the API can be independently scaled or deployed; the proxy does not persist user tokens
+- Enables response compression for improved performance without introducing session cookies; a future cookie-based authentication design would need to account for compression side-channel attacks such as BREACH
 
-**Important compatibility note:** While Microsoft supports providing refresh tokens in this flow, **Google does not support refresh tokens for browser-based applications** using the Authorization Code Flow with PKCE. If you need to support Google authentication, you would need to implement a different authentication strategy or accept that users will need to re-authenticate more frequently.
+**Important compatibility note:** The production token proxy is specific to Microsoft Entra ID. Supporting another identity provider, such as Google, requires provider-specific token exchange and refresh-token configuration.
 
 ### Industry Best Practices vs. This Template
 
@@ -190,9 +191,9 @@ Current industry best practices recommend using a **Backend-for-Frontend (BFF) p
 **To implement the BFF pattern in this template**, you would need to:
 
 1. Create backend API endpoints for login, logout, and token refresh operations
-2. Configure the backend to handle OAuth redirects and token exchanges server-side
+2. Move the OAuth callback and token lifecycle fully to the backend
 3. Store tokens in server-side session storage (e.g., Redis, database) with session IDs in HTTP-only cookies
-4. Modify the frontend to call backend authentication endpoints instead of directly interacting with Microsoft's OAuth endpoints
+4. Change the frontend to rely on backend sessions instead of storing Microsoft tokens
 5. Update the GraphQL client to rely on cookies for authentication rather than Authorization headers
 6. Implement CSRF protection for state-changing operations
 

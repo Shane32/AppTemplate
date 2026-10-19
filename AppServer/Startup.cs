@@ -2,10 +2,11 @@ using System.Diagnostics;
 using AppGraphQL;
 using AutoMapper;
 using AutoMapper.EquivalencyExpression;
+using Azure.Core;
+using Azure.Identity;
 using GraphQL.AspNetCore3;
 using GraphQL.Linq;
 using GraphQL.Types;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 
@@ -89,6 +90,14 @@ public class Startup
         }, typeof(Program).Assembly);
         services.AddRouting();
         services.AddControllers();
+        services.AddSingleton<TokenCredential>(serviceProvider => {
+            var clientId = serviceProvider.GetRequiredService<IConfiguration>()["AZURE_CLIENT_ID"] ?? "";
+            if (!Guid.TryParse(clientId, out _))
+                throw new InvalidOperationException("AZURE_CLIENT_ID must be the runtime user-assigned managed identity's client ID.");
+            return new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(clientId));
+        });
+        services.AddHttpClient("MicrosoftOAuth", client => client.Timeout = TimeSpan.FromSeconds(30))
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
         services.AddResponseCompression(options => {
             options.EnableForHttps = true;
             options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Append("application/graphql-response+json");
