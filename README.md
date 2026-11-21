@@ -16,7 +16,7 @@ This repository provides a production-ready template for building full-stack app
 
 ### Backend Stack
 
-- [.NET 10.0](https://dotnet.microsoft.com/)
+- [.NET 11.0](https://dotnet.microsoft.com/)
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [AutoMapper](https://automapper.org/)
 - [GraphQL.NET](https://graphql-dotnet.github.io/)
@@ -35,6 +35,7 @@ This repository provides a production-ready template for building full-stack app
 
 ### Development Environment
 
+- [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0)
 - [Visual Studio 2026](https://visualstudio.microsoft.com/) (for backend)
 - [VS Code](https://code.visualstudio.com/) (for frontend)
 - [Node.js 24 LTS](https://nodejs.org/) (Node.js 22.22+ is also supported)
@@ -225,7 +226,7 @@ Alternatively, the template is compatible with any Entity Framework Core-support
 
 ### Azure Web App
 
-Azure Web App hosts your application in the cloud. The template is designed for deployment to Azure App Service on Linux with .NET 10.
+Azure Web App hosts your application in the cloud. The template is designed for deployment to Azure App Service on Linux with .NET 11.
 
 Create the Azure Web App, attach a user-assigned runtime identity, grant that identity permissions to access your database and Key Vault, and configure the runtime identity's client ID in the web app's `AZURE_CLIENT_ID` application setting. The managed identity eliminates the need to store passwords or connection strings in configuration.
 
