@@ -18,7 +18,7 @@ Before starting this guide, ensure you have:
    - **Resource Group**: Select or create a resource group
    - **Name**: Enter a unique instance name (e.g., `myapp-dev` or `myapp-prod`)
    - **Publish**: Code
-   - **Runtime Stack**: .NET 10
+   - **Runtime Stack**: .NET 11
    - **Operating System**: Linux
    - **Region**: East US 2 (or your preferred region)
    - **Pricing Plan**: Select appropriate plan for your needs
